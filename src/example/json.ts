@@ -7,6 +7,9 @@ type ResBody = {
   msg: string
 };
 
+export const path = '/json';
+export const method = 'GET';
+
 export const handle: HandleFunc<ReqBody, URLParams, QueryParams, ResBody> = (_req): ResBody => {
   return { msg: 'This is returned from an example endpoint' };
 }

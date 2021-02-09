@@ -13,7 +13,6 @@ class Router {
   public handler(req: http.IncomingMessage, res: http.ServerResponse) {
     let body = '';
 
-
     const pipeline = this.routes[`${req.method} ${req.url}`]
 
     req.on('data', chunk => body += chunk);
