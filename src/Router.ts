@@ -28,7 +28,11 @@ class Router {
   }
 
   public addEndpoint(path: string, method: string, pipeline: Pipeline<any, any, any, any>) {
-    this.routingTree.addRoute(path, method, pipeline);
+    try {
+      this.routingTree.addRoute(path, method, pipeline);
+    } catch(err) {
+      console.error(err);
+    }
   }
 }
 
