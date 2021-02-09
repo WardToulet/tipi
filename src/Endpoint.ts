@@ -11,7 +11,19 @@ export interface URLParameterDecoder<URLParameters> {
 }
 
 export const urlParameterDecoder = {
-  noParameters: (_uri: string) => undefined
+  noParameters: (_uri: string) => undefined,
+  fromPathDef: (pathDef: string) => {
+    const keys = Object.entries(pathDef.split('/').slice(1))
+      .filter(([_, p]) => p.startsWith('@'))
+      .map(([i, p]) => [i, p.slice(1)]);
+
+    console.log(keys);
+
+    return (path: string): { [key: string]: any } => {
+      const parts = path.split('/').splice(1);
+      return Object.fromEntries(keys.map(([i, key]) => [key, decodeURI(parts[i])]));
+    }
+  }
 }
 
 export interface QueryParameterDecoder<QueryParameters> {

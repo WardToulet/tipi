@@ -53,7 +53,7 @@ export function createPipeline(module: any): Pipeline<any, any, any, any> {
 
   return new Pipeline(
     module.reqBodyDecoder         || reqBodyDecoder.noBody,
-    module.urlParameterDecoder    || urlParameterDecoder.noParameters,
+    module.decodeUrlParameters    || urlParameterDecoder.noParameters,
     module.queryParameterDecoder  || queryParameterDecoder.noParameters,
     module.handle,
     module.encodeResponseBody     || resBodyEncoder.string,
