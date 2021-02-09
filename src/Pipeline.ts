@@ -36,9 +36,6 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
   }
 
    run(path: string, rawBody: string) {
-     // TODO: decode body
-     // const reqBody: ReqBody = this.reqBodyDecoder(rawReq);
-     console.log(rawBody);
      const reqBody = undefined;
 
      const urlParameters: URLParameters = this.urlParameterDecoder(path);
@@ -51,8 +48,6 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
 }
 
 export function createPipeline(module: any): Pipeline<any, any, any, any> {
-  console.log(module);
-
   if(!module.handle)
      throw 'No handle func';
 

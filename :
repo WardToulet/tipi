@@ -1,40 +1,42 @@
-import http from 'http';
-import Pipeline, { createPipeline } from './Pipeline';
-import { listFilesInDirRecrusively } from './Util';
+import Pipeline from './Pipeline';
 
-class Router {
-  // TODO: use a tree to improve speed
-  private routes: { [key: string ]: Pipeline<any, any, any, any> }
- 
+export class RoutingTree {
+  private root: Node;
+
   constructor() {
-    this.routes = {};
+    this.root = { static: {}, dynamic: {}, isVariable: false };
   }
 
-  public handler(req: http.IncomingMessage, res: http.ServerResponse) {
-    let body = '';
+  addRoute(path: string, method: string, pipeline: Pipeline<any, any, any, any>) {
+    const routeParts = path.split('/').slice(1);
+    let node = this.root;
 
+    for(const part in routeParts) {
+      const isDynamic = part.startsWith('@');
+      const name = isDynamic ? part.slice(1) : part;
 
-    const pipeline = this.routes[`${req.method} ${req.url}`]
+      if(!node[isDynamic ? 'dynamic' : 'static' ][name]) {
+        node[isDynamic ? 'dynamic' : 'static'][name] = { static: {}, dynamic: {} };
+      }
 
-    req.on('data', chunk => body += chunk);
-    req.on('end', () => res.end(pipeline?.run(req.url, body) || 'Not found'));
-  }
+      node = node[isDynamic[]]
 
-  public addEndpoint(path: string, method: string, pipeline: Pipeline<any, any, any, any>) {
-    this.routes[`${method} ${path}`] = pipeline;
+      // // TODO: add variable check
+      // if((node.children[part] as (Node | undefined))?.isVariable === isVariable) {
+      //   node.children[part] = { children: {}, isVariable };
+      // }
+      //
+
+    }
   }
 }
 
-export async function loadEndpoints(dir: string) {
-  const router = new Router();
-
-  const imports = (await listFilesInDirRecrusively(dir))
-    .filter(x => x.match(/[a-zA-Z0-9]\.(js|ts)$/))
-    .map(module => import(module));
-
-  (await Promise.all(imports)).forEach(module => router.addEndpoint(module.path as string, module.method as string, createPipeline(module)));
-
-  const server = http.createServer(router.handler.bind(router));
-  server.listen(8090, () => console.log(`Server started on port 8090`));
+type Node = {
+  static: { [key: string]: (Node | Leaf )},
+  dynamic: { [key: string]: (Node | Leaf )},
 }
 
+type Leaf = {
+  method: string,
+  pipeline: Pipeline<any, any, any, any>,
+}

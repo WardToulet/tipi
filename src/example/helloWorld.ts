@@ -3,15 +3,11 @@ import { HandleFunc, ResBodyEncoder, resBodyEncoder } from '../Endpoint';
 type ReqBody = undefined;
 type URLParams = undefined;
 type QueryParams = undefined;
-type ResBody = {
-  msg: string
-};
+type ResBody = string;
 
-export const path = '/test/json';
+export const path = '/hello-world';
 export const method = 'GET';
 
 export const handle: HandleFunc<ReqBody, URLParams, QueryParams, ResBody> = (_req): ResBody => {
-  return { msg: 'This is returned from an example endpoint' };
+  return "Hello world";
 }
-
-export const encodeResponseBody: ResBodyEncoder<string> = resBodyEncoder.json;
