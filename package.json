@@ -1,0 +1,18 @@
+{
+  "name": "tipi",
+  "author": "Ward Toulet <ward@toulet.net>",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && node dist/index.js"
+  },
+
+  "devDependencies": {
+    "@types/node": "^14.14.25",
+    "tslint": "^6.1.3",
+    "typescript": "^4.1.3"
+  }
+}
