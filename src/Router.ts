@@ -47,8 +47,6 @@ export async function loadEndpoints(dir: string) {
     router.addEndpoint(module.path as string, module.method as string, createPipeline(module))
   });
 
-  console.log(JSON.stringify(router, undefined, 2));
-
   const server = http.createServer(router.handler.bind(router));
   server.listen(8090, () => console.log(`Server started on port 8090`));
 }

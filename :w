@@ -51,12 +51,11 @@ export function createPipeline(module: any): Pipeline<any, any, any, any> {
   if(!module.handle)
      throw 'No handle func';
 
-   const hasUrlParameters = module.path?.includes('@');
-
   return new Pipeline(
     module.reqBodyDecoder         || reqBodyDecoder.noBody,
-    module.decodeUrlParameters    || hasUrlParameters ? urlParameterDecoder.fromPathDef(module.path) : urlParameterDecoder.noParameters,
-    module.queryParameterDecoder  || queryParameterDecoder.extract,
+    module.decodeUrlParameters    || urlParameterDecoder.noParameters,
+
+    module.queryParameterDecoder  || queryParameterDecoder.noParameters,
     module.handle,
     module.encodeResponseBody     || resBodyEncoder.string,
   );
