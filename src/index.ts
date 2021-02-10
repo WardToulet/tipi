@@ -1,6 +1,6 @@
 import http from 'http';
-import { loadEndpoints } from './Router';
-import { urlParameterDecoder, queryParameterDecoder } from './Endpoint';
+import { loadEndpoints } from './router';
+import { urlParameterDecoder, queryParameterDecoder } from './endpoint';
 
 async function start() {
   const router = await loadEndpoints({
@@ -39,6 +39,8 @@ async function start() {
         // Generate encode ResponseBody
         if(endpoint.ResponseBody instanceof Object) {
           endpoint.encodeResponseBody = JSON.stringify;
+        } else {
+          endpoint.encodeResponseBody = (x: any) => x.toString();
         }
 
         return endpoint;

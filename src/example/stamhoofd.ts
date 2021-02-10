@@ -1,8 +1,8 @@
-import { HandleFunc } from '../Endpoint';
+import { HandleFunc } from '../endpoint';
 import { AutoEncoder, field, StringDecoder, NumberDecoder } from '@simonbackx/simple-encoding';
 
 export const path = '/stamhoofd/group/@id';
-export const method = 'GET';
+export const method = 'POST';
 
 export class URLParameters extends AutoEncoder {
   @field({ decoder: NumberDecoder })

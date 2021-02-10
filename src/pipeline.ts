@@ -1,18 +1,10 @@
 import {
   ReqBodyDecoder,
-  reqBodyDecoder,
-
   URLParameterDecoder,
-  urlParameterDecoder,
-
   QueryParameterDecoder,
-  queryParameterDecoder,
-
   HandleFunc,
-
   ResBodyEncoder,
-  resBodyEncoder,
-} from './Endpoint';
+} from './endpoint';
 
 type PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody> = {
     reqBodyDecoder: ReqBodyDecoder<ReqBody>,
@@ -43,13 +35,14 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
     this.resBodyEncoder = resBodyEncoder;
   }
 
-   run(path: string, rawBody: string) {
+   run(path: string, rawBody: string, headers: { [key: string]: string}) {
+     console.log(headers);
      const reqBody = undefined;
 
      const urlParameters: URLParameters = this.urlParameterDecoder?.(path);
      const queryParameters: QueryParameters = this.queryParameterDecoder?.(path);
   
-     const resBody: ResBody = this.handleFunc({ reqBody, urlParameters, queryParameters });
+     const resBody: ResBody = this.handleFunc({ reqBody, urlParameters, queryParameters, headers });
   
      return this.resBodyEncoder?.(resBody);
    }

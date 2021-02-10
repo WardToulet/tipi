@@ -1,4 +1,4 @@
-import { HandleFunc, ResBodyEncoder, resBodyEncoder } from '../Endpoint';
+import { HandleFunc, ResBodyEncoder, resBodyEncoder } from '../endpoint';
 
 type ReqBody = undefined;
 type URLParams = undefined;

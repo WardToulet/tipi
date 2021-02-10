@@ -99,3 +99,33 @@ const router = await loadEndpoints({
     ]
 });
 ```
+
+## Pipeline
+
+From an endpoint module a pipline is constructed this pipeline is inovked by
+the router when the it's endpoint is called by a client.
+
+The base flow for a pipeline looks like this.
+
+- The pipelines is invoked and gets `rawBody`, `path` and `headers` as arguments.
+- The decode functions run
+  - the queryParameters are extracted and parsed
+  - the the URLParmeteters are extracted and parsed
+  - the requestBody is parsed
+  If any of these throw an error the pipleline is canceled and throw an httpError.
+- Middleware runs and can modify the request or throw an error which would
+  cancel the pipeline.
+- The handler function runs getting the Decoded data from the previous step as
+  an argument wrapped in a Request object.
+- The return of the handler is encoded using the returBodyEncoder.
+
+### Notes
+
+- Some middleware would not need the decoded body, think of checking a bearer
+  token for example, or extracting an api key from
+  - Create a rawMiddleware type which handles with raw request only
+   (before the decode step)
+  - Determine in the middleware if the body or parameters are needed and running
+    the decoding in the first step that requres it
+    (or not if not required by anny middleware). And lazily initiallyizing the
+    request data.

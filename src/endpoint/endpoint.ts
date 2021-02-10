@@ -46,6 +46,7 @@ export interface TipiRequest<ReqBody, URLParameters, QueryParameters> {
   reqBody: ReqBody,
   urlParameters: URLParameters,
   queryParameters: QueryParameters, 
+  headers: { [key: string]: string },
 }
 
 export interface HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody> {

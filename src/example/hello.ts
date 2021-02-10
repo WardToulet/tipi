@@ -1,19 +1,24 @@
-import { HandleFunc, urlParameterDecoder } from '../Endpoint';
+import { HandleFunc } from '../endpoint';
+import { AutoEncoder, field, StringDecoder, NumberDecoder } from '@simonbackx/simple-encoding';
 
-type ReqBody = undefined;
-type URLParams = {
-  name: string,
+export class URLParameters extends AutoEncoder {
+  @field({ decoder: StringDecoder })
+  name: string;
 };
 
-type QueryParams = {
-  caps?: string,
+export class QueryParameters extends AutoEncoder {
+  @field({ decoder: StringDecoder, optional: true })
+  caps?: string;
 };
+
 type ResBody = string;
 
 export const path = '/hello/@name';
 export const method = 'GET';
 
-export const handle: HandleFunc<ReqBody, URLParams, QueryParams, ResBody> = (req): ResBody => {
+export const handle: HandleFunc<undefined, URLParameters, QueryParameters, ResBody> = (req): ResBody => {
+  console.log(req);
+
   if(req.queryParameters.caps == 'all') {
     return `Hello ${req.urlParameters?.name.toUpperCase()}`;
   } else if(req.queryParameters.caps == 'first') {

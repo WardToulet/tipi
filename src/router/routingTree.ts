@@ -1,5 +1,5 @@
-import Pipeline from './Pipeline';
-import { HTTPMethod } from './HttpMethod';
+import Pipeline from '../pipeline';
+import { HTTPMethod } from '../httpMethod';
 
 export default class RoutingTree {
   private root: Node;

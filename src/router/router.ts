@@ -1,9 +1,9 @@
 import http from 'http';
-import Pipeline, { createPipeline } from './Pipeline';
-import { listFilesInDirRecrusively } from './Util';
-import RoutingTree from './RoutingTree';
-import { ModuleTranformer } from './ModuleTranformer';
-import { HTTPMethod } from './HttpMethod';
+import Pipeline, { createPipeline } from '../pipeline';
+import { listFilesInDirRecrusively } from '../util';
+import RoutingTree from './routingTree';
+import { EndpointTransformer } from '../endpoint';
+import { HTTPMethod } from '../httpMethod';
 
 class Router {
   private routingTree: RoutingTree;
@@ -21,7 +21,7 @@ class Router {
     req.on('end', () => {
       if(pipeline) {
         try {
-          res.end(pipeline.run(req.url, body));
+          res.end(pipeline.run(req.url, body, req.headers as { [key: string]: string }));
         } catch(err) {
           res.statusCode = 400;
           res.end(err.message);
@@ -44,7 +44,7 @@ class Router {
 
 type LoadEndpointsProps = {
   path: string,
-  transformers?: ModuleTranformer[];
+  transformers?: EndpointTransformer[];
 }
 
 export async function loadEndpoints({ path, transformers = []}: LoadEndpointsProps): Promise<(req: http.IncomingMessage, res: http.ServerResponse) => void> {
