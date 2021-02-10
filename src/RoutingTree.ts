@@ -1,4 +1,5 @@
 import Pipeline from './Pipeline';
+import { HTTPMethod } from './HttpMethod';
 
 export default class RoutingTree {
   private root: Node;
@@ -7,7 +8,7 @@ export default class RoutingTree {
     this.root = {};
   }
 
-  public addRoute(path: string, method: string, pipeline: Pipeline<any, any, any, any>) {
+  public addRoute(path: string, method: HTTPMethod, pipeline: Pipeline<any, any, any, any>) {
     console.log(`Loading route ${method} ${path}`);
     const routeParts = path.split('/').slice(1);
     let node = this.root;
@@ -53,12 +54,11 @@ export default class RoutingTree {
     node.leafs[method] = pipeline;
   }
 
-  public getPipeline(path: string, method: string): Pipeline<any, any, any, any> | undefined {
-    const pathParts = path.split('/').slice(1);
+  public getPipeline(path: string, method: HTTPMethod): Pipeline<any, any, any, any> | undefined {
+    const pathParts = path.split('/').filter(p => p !== '');
     let node = this.root;
 
     for(const part of pathParts) {
-      // TODO: check all the dynamic paths
       node = node.static?.[part] || node.dynamic?.children;
 
       if(!node) {
@@ -76,7 +76,6 @@ type Node = {
     variable: string,
     children: Node,
   },
-  // TODO: replace string with http method type
 
   leafs?: { [key: string]: Pipeline<any, any, any, any> },
 }

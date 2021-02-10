@@ -30,10 +30,15 @@ export interface QueryParameterDecoder<QueryParameters> {
 
 export const queryParameterDecoder = {
   extract: (uri: string) => {
-    return Object.fromEntries(
-      uri.split('?')[1]?.split('&')
-        .map(kvpair => kvpair.split('='))
-    );
+    const raw = uri.split('?')[1];
+    if(raw) {
+      return Object.fromEntries(
+        raw.split('&')
+          .map(kvpair => kvpair.split('='))
+      );
+    } else {
+      return {};
+    }
   },
 }
 

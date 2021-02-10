@@ -2,9 +2,10 @@ import http from 'http';
 import Pipeline, { createPipeline } from './Pipeline';
 import { listFilesInDirRecrusively } from './Util';
 import RoutingTree from './RoutingTree';
+import { ModuleTranformer } from './ModuleTranformer';
+import { HTTPMethod } from './HttpMethod';
 
 class Router {
-  // TODO: use a tree to improve speed
   private routingTree: RoutingTree;
  
   constructor() {
@@ -14,12 +15,17 @@ class Router {
   public handler(req: http.IncomingMessage, res: http.ServerResponse) {
     let body = '';
 
-    const pipeline = this.routingTree.getPipeline(req.url, req.method);
+    const pipeline = this.routingTree.getPipeline(req.url, req.method as HTTPMethod);
 
     req.on('data', chunk => body += chunk);
     req.on('end', () => {
       if(pipeline) {
-        res.end(pipeline.run(req.url, body));
+        try {
+          res.end(pipeline.run(req.url, body));
+        } catch(err) {
+          res.statusCode = 400;
+          res.end(err.message);
+        }
       } else {
         res.statusCode = 404;
         res.end('Not found', 'utf-8');
@@ -27,7 +33,7 @@ class Router {
     });
   }
 
-  public addEndpoint(path: string, method: string, pipeline: Pipeline<any, any, any, any>) {
+  public addEndpoint(path: string, method: HTTPMethod, pipeline: Pipeline<any, any, any, any>) {
     try {
       this.routingTree.addRoute(path, method, pipeline);
     } catch(err) {
@@ -36,18 +42,23 @@ class Router {
   }
 }
 
-export async function loadEndpoints(dir: string) {
+type LoadEndpointsProps = {
+  path: string,
+  transformers?: ModuleTranformer[];
+}
+
+export async function loadEndpoints({ path, transformers = []}: LoadEndpointsProps): Promise<(req: http.IncomingMessage, res: http.ServerResponse) => void> {
   const router = new Router();
 
-  const imports = (await listFilesInDirRecrusively(dir))
+  const imports = (await listFilesInDirRecrusively(path))
     .filter(x => x.match(/[a-zA-Z0-9]\.(js|ts)$/))
     .map(module => import(module));
 
   (await Promise.all(imports)).forEach(module => {
-    router.addEndpoint(module.path as string, module.method as string, createPipeline(module))
+    let tranformed = transformers.reduce((module, transformer) => transformer(module), module);
+    router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(tranformed))
   });
 
-  const server = http.createServer(router.handler.bind(router));
-  server.listen(8090, () => console.log(`Server started on port 8090`));
+  return router.handler.bind(router);
 }
 

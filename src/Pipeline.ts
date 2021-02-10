@@ -14,20 +14,28 @@ import {
   resBodyEncoder,
 } from './Endpoint';
 
-export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> {
-  readonly reqBodyDecoder: ReqBodyDecoder<ReqBody>;
-  readonly urlParameterDecoder: URLParameterDecoder<URLParameters>;
-  readonly queryParameterDecoder: QueryParameterDecoder<QueryParameters>;
-  readonly handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>;
-  readonly resBodyEncoder: ResBodyEncoder<ResBody>;
-
-  constructor(
+type PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody> = {
     reqBodyDecoder: ReqBodyDecoder<ReqBody>,
     urlParameterDecoder: URLParameterDecoder<URLParameters>,
     queryParameterDecoder: QueryParameterDecoder<QueryParameters>,
     handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>,
     resBodyEncoder: ResBodyEncoder<ResBody>,
-  ) {
+}
+
+export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> {
+  readonly reqBodyDecoder?: ReqBodyDecoder<ReqBody>;
+  readonly urlParameterDecoder?: URLParameterDecoder<URLParameters>;
+  readonly queryParameterDecoder?: QueryParameterDecoder<QueryParameters>;
+  readonly handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>;
+  readonly resBodyEncoder?: ResBodyEncoder<ResBody>;
+
+  constructor({
+    reqBodyDecoder,
+    urlParameterDecoder,
+    queryParameterDecoder,
+    handleFunc,
+    resBodyEncoder,
+  }: PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody>) {
     this.reqBodyDecoder = reqBodyDecoder;
     this.urlParameterDecoder = urlParameterDecoder;
     this.queryParameterDecoder = queryParameterDecoder;
@@ -38,26 +46,25 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
    run(path: string, rawBody: string) {
      const reqBody = undefined;
 
-     const urlParameters: URLParameters = this.urlParameterDecoder(path);
-     const queryParameters: QueryParameters = this.queryParameterDecoder(path);
+     const urlParameters: URLParameters = this.urlParameterDecoder?.(path);
+     const queryParameters: QueryParameters = this.queryParameterDecoder?.(path);
   
      const resBody: ResBody = this.handleFunc({ reqBody, urlParameters, queryParameters });
   
-     return this.resBodyEncoder(resBody);
+     return this.resBodyEncoder?.(resBody);
    }
 }
 
 export function createPipeline(module: any): Pipeline<any, any, any, any> {
-  if(!module.handle)
+  if(!module.handle) {
      throw 'No handle func';
+  }
 
-   const hasUrlParameters = module.path?.includes('@');
-
-  return new Pipeline(
-    module.reqBodyDecoder         || reqBodyDecoder.noBody,
-    module.decodeUrlParameters    || hasUrlParameters ? urlParameterDecoder.fromPathDef(module.path) : urlParameterDecoder.noParameters,
-    module.queryParameterDecoder  || queryParameterDecoder.extract,
-    module.handle,
-    module.encodeResponseBody     || resBodyEncoder.string,
-  );
+  return new Pipeline({
+    reqBodyDecoder: module.decodeRequestBody,
+    urlParameterDecoder: module.decodeURLParameters,
+    queryParameterDecoder: module.decodeQueryParameters,
+    handleFunc: module.handle,
+    resBodyEncoder: module.encodeResponseBody, 
+  });
 }

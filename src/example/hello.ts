@@ -6,7 +6,7 @@ type URLParams = {
 };
 
 type QueryParams = {
-  caps: string,
+  caps?: string,
 };
 type ResBody = string;
 
