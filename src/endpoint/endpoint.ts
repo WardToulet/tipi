@@ -1,3 +1,5 @@
+import Request from './request';
+
 export interface ReqBodyDecoder<ReqBody> {
   (raw: string): ReqBody,
 }
@@ -42,15 +44,8 @@ export const queryParameterDecoder = {
   },
 }
 
-export interface TipiRequest<ReqBody, URLParameters, QueryParameters> {
-  reqBody: ReqBody,
-  urlParameters: URLParameters,
-  queryParameters: QueryParameters, 
-  headers: { [key: string]: string },
-}
-
 export interface HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody> {
-  (req: TipiRequest<ReqBody, URLParameters, QueryParameters>): ResBody
+  (req: Request<ReqBody, URLParameters, QueryParameters>): ResBody
 }
 
 export interface ResBodyEncoder<ResBody> {
