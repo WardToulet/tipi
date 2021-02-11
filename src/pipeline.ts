@@ -3,23 +3,28 @@ import {
   URLParameterDecoder,
   QueryParameterDecoder,
   HandleFunc,
+  MiddlewareFunc,
   ResBodyEncoder,
+  Request,
 } from './endpoint';
 
 type PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody> = {
-    reqBodyDecoder: ReqBodyDecoder<ReqBody>,
-    urlParameterDecoder: URLParameterDecoder<URLParameters>,
-    queryParameterDecoder: QueryParameterDecoder<QueryParameters>,
+    reqBodyDecoder?: ReqBodyDecoder<ReqBody>,
+    urlParameterDecoder?: URLParameterDecoder<URLParameters>,
+    queryParameterDecoder?: QueryParameterDecoder<QueryParameters>,
     handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>,
-    resBodyEncoder: ResBodyEncoder<ResBody>,
+    middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters>[],
+    resBodyEncoder?: ResBodyEncoder<ResBody>,
 }
 
 export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> {
   readonly reqBodyDecoder?: ReqBodyDecoder<ReqBody>;
   readonly urlParameterDecoder?: URLParameterDecoder<URLParameters>;
   readonly queryParameterDecoder?: QueryParameterDecoder<QueryParameters>;
+  readonly middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters>[];
   readonly handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>;
   readonly resBodyEncoder?: ResBodyEncoder<ResBody>;
+  public context: { [key: string]: any } = {};
 
   constructor({
     reqBodyDecoder,
@@ -27,24 +32,33 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
     queryParameterDecoder,
     handleFunc,
     resBodyEncoder,
+    middleware,
   }: PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody>) {
     this.reqBodyDecoder = reqBodyDecoder;
     this.urlParameterDecoder = urlParameterDecoder;
     this.queryParameterDecoder = queryParameterDecoder;
     this.handleFunc = handleFunc;
     this.resBodyEncoder = resBodyEncoder;
+    this.middleware = middleware;
   }
 
    run(path: string, rawBody: string, headers: { [key: string]: string}) {
-     console.log(headers);
-     const reqBody = undefined;
+     let request = new Request<ReqBody, URLParameters, QueryParameters>({
+        path,
+        rawBody,
+        headers,
+        reqBodyDecoder: this.reqBodyDecoder,
+        urlParameterDecoder: this.urlParameterDecoder,
+        queryParameterDecoder: this.queryParameterDecoder,
+     });
 
-     const urlParameters: URLParameters = this.urlParameterDecoder?.(path);
-     const queryParameters: QueryParameters = this.queryParameterDecoder?.(path);
+     for(const middleware of this.middleware || [] ) {
+        request = middleware(request);
+     }
+
+     const result: ResBody = this.handleFunc(request);
   
-     const resBody: ResBody = this.handleFunc({ reqBody, urlParameters, queryParameters, headers });
-  
-     return this.resBodyEncoder?.(resBody);
+     return this.resBodyEncoder?.(result);
    }
 }
 
@@ -53,11 +67,20 @@ export function createPipeline(module: any): Pipeline<any, any, any, any> {
      throw 'No handle func';
   }
 
+  if(!module.method) {
+    throw 'No method defined';
+  }
+
+  if(!module.path) {
+    throw 'No path defined';
+  }
+
   return new Pipeline({
     reqBodyDecoder: module.decodeRequestBody,
     urlParameterDecoder: module.decodeURLParameters,
     queryParameterDecoder: module.decodeQueryParameters,
     handleFunc: module.handle,
     resBodyEncoder: module.encodeResponseBody, 
+    middleware: module.middleware,
   });
 }
