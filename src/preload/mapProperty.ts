@@ -7,7 +7,7 @@ export const mapProperty = (from: string, to: string, map: (from: any) => any) =
   delete module[from];
 
   if(property) {
-    module[to] = map(module);
+    module[to] = map(property);
     return module;
   } else {
     return module;
