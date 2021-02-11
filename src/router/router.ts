@@ -2,7 +2,7 @@ import http from 'http';
 import Pipeline, { createPipeline } from '../pipeline';
 import { listFilesInDirRecrusively } from '../util';
 import RoutingTree from './routingTree';
-import { EndpointTransformer } from '../endpoint';
+import { PreloadFunc } from '../preload';
 import { HTTPMethod } from '../httpHelpers';
 
 class Router {
@@ -35,7 +35,7 @@ class Router {
           } else {
             // An non http error can not be send to the user this is logged on the server
             // TODO: reference the endpoint that throws
-            console.error(`[tipi/router]: X threw a non http error ${err.message}`);
+            console.error(`[tipi/router]: X threw a non http error ${err.message || err }`);
             res.statusCode = 500;
             res.end('Internal server error');
           }
@@ -58,10 +58,10 @@ class Router {
 
 type LoadEndpointsProps = {
   path: string,
-  transformers?: EndpointTransformer[];
+  preloadFunctions?: PreloadFunc[];
 }
 
-export async function loadEndpoints({ path, transformers = []}: LoadEndpointsProps):
+export async function loadEndpoints({ path, preloadFunctions: transformers = []}: LoadEndpointsProps):
   Promise<(req: http.IncomingMessage, res: http.ServerResponse) => void>
 {
   const router = new Router();

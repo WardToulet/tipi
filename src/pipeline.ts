@@ -58,7 +58,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
 
      const result: ResBody = this.handleFunc(request);
   
-     return this.resBodyEncoder?.(result);
+     return this.resBodyEncoder?.(result) || result.toString();
    }
 }
 

@@ -1,7 +1,5 @@
 export { default } from './endpoint';
 
-export { default as EndpointTransformer } from './endpointTransformer';
-
 export { default as HandleFunc } from './handleFunc';
 export { default as MiddlewareFunc } from './middleware';
 

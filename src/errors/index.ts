@@ -1,1 +1,1 @@
-export type { HTTPError } from './httpError';
+export { default as HTTPError, mapHTTPError } from './httpError';

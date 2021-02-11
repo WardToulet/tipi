@@ -5,7 +5,7 @@ type HTTPErrorProps = {
   message: any;
 }
 
-export class HTTPError extends Error {
+export default class HTTPError extends Error {
   readonly status: HTTPStatusCode;
   // Is object is used to set the response type header when returnign to the client
   private isObject: boolean;
@@ -19,4 +19,8 @@ export class HTTPError extends Error {
       : message;
     this.status = status;
   }
+}
+
+export function mapHTTPError(status: HTTPStatusCode, err: Error): HTTPError {
+  return new HTTPError({ status, message: err.message });
 }
