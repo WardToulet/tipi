@@ -24,6 +24,11 @@ class Router {
           res.end(pipeline.run(req.url, body, req.headers as { [key: string]: string }));
         } catch(err) {
           if(err.name === 'HTTPError') {
+            // Check if the error message is json
+            if(err.isObject) {
+              res.setHeader('Content-Type', 'application/json');
+            }
+
             // Send the error to the client
             res.statusCode =  err.status;
             res.end(err.message);
