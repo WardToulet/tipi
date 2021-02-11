@@ -1,3 +1,3 @@
-export interface EndpointTransformer {
+export default interface EndpointTransformer {
   (module: {}): {};
 }

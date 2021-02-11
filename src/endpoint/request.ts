@@ -1,8 +1,6 @@
-import { 
-  ReqBodyDecoder,
-  URLParameterDecoder,
-  QueryParameterDecoder,
-} from './endpoint';
+import ReqBodyDecoder from './reqBodyDecoder';
+import URLParameterDecoder from './urlParameterDecoder';
+import QueryParameterDecoder from './queryParameterDecoder';
 
 type RequestParams<ReqBody, URLParams, QueryParams> = {
   reqBodyDecoder?: ReqBodyDecoder<ReqBody>,
