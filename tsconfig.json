@@ -8,5 +8,6 @@
     "outDir": "dist",
     "lib": [ "es2019" ],
     "experimentalDecorators": true,
+    "declaration": true
   },
 }
