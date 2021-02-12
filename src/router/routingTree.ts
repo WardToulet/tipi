@@ -74,6 +74,7 @@ export default class RoutingTree {
         // Not found
         throw new HTTPError({
           status: 404,
+          message: 'Not found'
         });
       }
     }
