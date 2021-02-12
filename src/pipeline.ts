@@ -8,7 +8,10 @@ import {
   Request,
 } from './endpoint';
 
+import { PipelineError } from './errors';
+
 type PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody> = {
+    name: string,
     reqBodyDecoder?: ReqBodyDecoder<ReqBody>,
     urlParameterDecoder?: URLParameterDecoder<URLParameters>,
     queryParameterDecoder?: QueryParameterDecoder<QueryParameters>,
@@ -18,6 +21,7 @@ type PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody> = {
 }
 
 export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> {
+  readonly name: string;
   readonly reqBodyDecoder?: ReqBodyDecoder<ReqBody>;
   readonly urlParameterDecoder?: URLParameterDecoder<URLParameters>;
   readonly queryParameterDecoder?: QueryParameterDecoder<QueryParameters>;
@@ -33,6 +37,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
     handleFunc,
     resBodyEncoder,
     middleware,
+    name,
   }: PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody>) {
     this.reqBodyDecoder = reqBodyDecoder;
     this.urlParameterDecoder = urlParameterDecoder;
@@ -40,6 +45,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
     this.handleFunc = handleFunc;
     this.resBodyEncoder = resBodyEncoder;
     this.middleware = middleware;
+    this.name = name;
   }
 
    async run(path: string, rawBody: string, headers: { [key: string]: string}): Promise<string> {
@@ -63,20 +69,33 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
    }
 }
 
-export function createPipeline(module: any): Pipeline<any, any, any, any> {
+export function createPipeline(module: any, filename: string): Pipeline<any, any, any, any> {
+  // If a name is defined use the defined name otherwise use the filename
+  const name = module.name || filename?.split('/').pop();
+
   if(!module.handle) {
-     throw 'No handle func';
+     throw new PipelineError({
+       pipeline: name,
+       message: 'No handle func',
+     });
   }
 
   if(!module.method) {
-    throw 'No method defined';
+    throw new PipelineError({
+      pipeline: name,
+      message: 'No method defined',
+    });
   }
 
   if(!module.path) {
-    throw 'No path defined';
+    throw new PipelineError({
+      pipeline: name, 
+      message: 'No path defined',
+    });
   }
 
   return new Pipeline({
+    name,
     reqBodyDecoder: module.decodeRequestBody,
     urlParameterDecoder: module.decodeURLParameters,
     queryParameterDecoder: module.decodeQueryParameters,

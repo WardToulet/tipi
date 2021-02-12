@@ -73,12 +73,16 @@ export async function loadEndpoints({ path, preloadFunctions: transformers = []}
 
   const imports = (await listFilesInDirRecrusively(path))
     .filter(x => x.match(/[a-zA-Z0-9]\.(js|ts)$/))
-    .map(module => import(module));
+    .map(module => Promise.all([import(module), Promise.resolve(module)]));
 
-  (await Promise.all(imports)).forEach(module => {
-    let tranformed = transformers.reduce((module, transformer) => transformer(module), module);
-    router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(tranformed))
-  });
+  (await Promise.all(imports)).forEach(([module, filename]) => {
+    try {
+      let tranformed = transformers.reduce((module, transformer) => transformer(module), module);
+      router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(tranformed, filename))
+    } catch(err) {
+      console.log(err.message);
+    }
+  })
 
   return router.handler.bind(router);
 }
