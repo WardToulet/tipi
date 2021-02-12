@@ -1,6 +1,4 @@
-export { default } from './endpoint';
-
-export { default as HandleFunc } from './handleFunc';
+export { default as HandleFunc } from './handle';
 export { default as MiddlewareFunc } from './middleware';
 
 export { default as ReqBodyDecoder, reqBodyDecoder } from './reqBodyDecoder';

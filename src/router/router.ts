@@ -24,8 +24,8 @@ class Router {
       req.on('data', chunk => body += chunk);
 
       // Handle the request when it is fully recieved
-      req.on('end', () => {
-        res.end(pipeline.run(req.url, body, req.headers as { [key: string]: string }));
+      req.on('end', async () => {
+        res.end(await pipeline.run(req.url, body, req.headers as { [key: string]: string }));
       });
     } catch(err) {
       if(err.name === 'HTTPError') {

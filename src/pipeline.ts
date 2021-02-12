@@ -42,7 +42,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
     this.middleware = middleware;
   }
 
-   run(path: string, rawBody: string, headers: { [key: string]: string}) {
+   async run(path: string, rawBody: string, headers: { [key: string]: string}): Promise<string> {
      let request = new Request<ReqBody, URLParameters, QueryParameters>({
         path,
         rawBody,
@@ -53,10 +53,11 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
      });
 
      for(const middleware of this.middleware || [] ) {
-        request = middleware(request);
+        // Await on each middleware function because it must run in order
+        request = await middleware(request);
      }
 
-     const result: ResBody = this.handleFunc(request);
+     const result: ResBody = await this.handleFunc(request);
   
      return this.resBodyEncoder?.(result) || result.toString();
    }
