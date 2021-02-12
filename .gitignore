@@ -2,6 +2,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/yarn,node
 # Edit at https://www.toptal.com/developers/gitignore?templates=yarn,node
 
+# I keep making files like : and :w in vim so I added them to the gitignore
+:*
+
 ### Node ###
 # Logs
 logs
