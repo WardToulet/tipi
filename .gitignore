@@ -5,6 +5,8 @@
 # I keep making files like : and :w in vim so I added them to the gitignore
 :*
 
+yarn.lock
+
 ### Node ###
 # Logs
 logs
