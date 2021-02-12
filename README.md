@@ -14,6 +14,6 @@ exporting even more as to increase readablity and decrease code size.
 - [ ] Mixins: extentions that create endpoints, and implement middleware etc.
       (ex: oauth mixing would create endpoints for login in, registering, 
       getting tokens and add middleware to check for tokens and add a user to the context)
-- [] Typed context?, the context is now a object of type `{ [key: string]: any }`
+- [ ] Typed context?, the context is now a object of type `{ [key: string]: any }`
     It might be nice to get that typed for endusers, as this is populated 
     by middleware we can't be shure that the data will actually be present though.
