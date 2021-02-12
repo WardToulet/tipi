@@ -5,7 +5,6 @@ import PreloadFunc from './preload';
  * if the predicate returns true
  */
 export const conditional = (predicate: (module: any) => boolean, preloadFunc: PreloadFunc): PreloadFunc => (module: any): any => {
-  console.log('Predicate: ', predicate(module));
   if(predicate(module)) {
     return preloadFunc(module);
   } else {

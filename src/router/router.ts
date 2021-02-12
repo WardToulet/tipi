@@ -13,38 +13,43 @@ class Router {
   }
 
   public handler(req: http.IncomingMessage, res: http.ServerResponse) {
-    let body = '';
+    try {
+      let body = '';
 
-    const pipeline = this.routingTree.getPipeline(req.url, req.method as HTTPMethod);
+      // Get the pipeline from the routing tree
+      // This throws an HTTPError if the path or method is not found
+      const pipeline = this.routingTree.getPipeline(req.url, req.method as HTTPMethod);
 
-    req.on('data', chunk => body += chunk);
-    req.on('end', () => {
-      if(pipeline) {
-        try {
-          res.end(pipeline.run(req.url, body, req.headers as { [key: string]: string }));
-        } catch(err) {
-          if(err.name === 'HTTPError') {
-            // Check if the error message is json
-            if(err.isObject) {
-              res.setHeader('Content-Type', 'application/json');
-            }
+      // Collect the body data into the body variable
+      req.on('data', chunk => body += chunk);
 
-            // Send the error to the client
-            res.statusCode =  err.status;
-            res.end(err.message);
-          } else {
-            // An non http error can not be send to the user this is logged on the server
-            // TODO: reference the endpoint that throws
-            console.error(`[tipi/router]: X threw a non http error ${err.message || err }`);
-            res.statusCode = 500;
-            res.end('Internal server error');
-          }
+      // Handle the request when it is fully recieved
+      req.on('end', () => {
+        res.end(pipeline.run(req.url, body, req.headers as { [key: string]: string }));
+      });
+    } catch(err) {
+      if(err.name === 'HTTPError') {
+      // If the error is HTTPError it wil be send as a response to the client
+       
+        // Check if the error message is json
+        if(err.isObject) {
+          res.setHeader('Content-Type', 'application/json');
         }
+
+        // Send the error to the client
+        res.statusCode =  err.status;
+        res.end(err.message);
       } else {
-        res.statusCode = 404;
-        res.end('Not found', 'utf-8');
+      // If the error is not HTTPError it will be loged on the server, 
+      // and an internal server error will be send to the client
+        
+        // An non http error can not be send to the user this is logged on the server
+        // TODO: reference the endpoint that throws
+        console.error(`[tipi/router]: X threw a non http error ${err.message || err }`);
+        res.statusCode = 500;
+        res.end('Internal server error');
       }
-    });
+    }
   }
 
   public addEndpoint(path: string, method: HTTPMethod, pipeline: Pipeline<any, any, any, any>) {

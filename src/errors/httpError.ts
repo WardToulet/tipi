@@ -2,7 +2,7 @@ import { HTTPStatusCode } from '../httpHelpers/httpStatusCode';
 
 type HTTPErrorProps = {
   status: HTTPStatusCode;
-  message: any;
+  message?: any;
 }
 
 export default class HTTPError extends Error {
