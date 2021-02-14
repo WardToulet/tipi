@@ -1,5 +1,5 @@
 import {
-  ReqBodyDecoder,
+  RequestBodyDecoder,
   URLParameterDecoder,
   QueryParameterDecoder,
   HandleFunc,
@@ -12,7 +12,7 @@ import { PipelineError } from './errors';
 
 type PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody> = {
     name: string,
-    reqBodyDecoder?: ReqBodyDecoder<ReqBody>,
+    reqBodyDecoder?: RequestBodyDecoder<ReqBody>,
     urlParameterDecoder?: URLParameterDecoder<URLParameters>,
     queryParameterDecoder?: QueryParameterDecoder<QueryParameters>,
     handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>,
@@ -22,7 +22,7 @@ type PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody> = {
 
 export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> {
   readonly name: string;
-  readonly reqBodyDecoder?: ReqBodyDecoder<ReqBody>;
+  readonly reqBodyDecoder?: RequestBodyDecoder<ReqBody>;
   readonly urlParameterDecoder?: URLParameterDecoder<URLParameters>;
   readonly queryParameterDecoder?: QueryParameterDecoder<QueryParameters>;
   readonly middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters>[];

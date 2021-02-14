@@ -1,9 +1,9 @@
-import ReqBodyDecoder from './reqBodyDecoder';
+import ReqeuestBodyDecoder from './requestBodyDecoder';
 import URLParameterDecoder from './urlParameterDecoder';
 import QueryParameterDecoder from './queryParameterDecoder';
 
 type RequestParams<ReqBody, URLParams, QueryParams> = {
-  reqBodyDecoder?: ReqBodyDecoder<ReqBody>,
+  reqBodyDecoder?: ReqeuestBodyDecoder<ReqBody>,
   urlParameterDecoder?: URLParameterDecoder<URLParams>,
   queryParameterDecoder?: QueryParameterDecoder<QueryParams>,
   path: string,
@@ -16,7 +16,7 @@ export default class Request<ReqBody, URLParams, QueryParams> {
   private _urlParams?: URLParams;
   private _queryParams?: QueryParams;
 
-  private reqBodyDecoder: ReqBodyDecoder<ReqBody>;
+  private reqBodyDecoder: ReqeuestBodyDecoder<ReqBody>;
   private urlParameterDecoder: URLParameterDecoder<URLParams>;
   private queryParameterDecoder: QueryParameterDecoder<QueryParams>;
 
