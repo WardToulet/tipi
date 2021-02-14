@@ -4,7 +4,7 @@ import {
   QueryParameterDecoder,
   HandleFunc,
   MiddlewareFunc,
-  ResBodyEncoder,
+  ResponseBodyEncoder,
   Request,
 } from './endpoint';
 
@@ -17,7 +17,7 @@ type PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody> = {
     queryParameterDecoder?: QueryParameterDecoder<QueryParameters>,
     handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>,
     middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters>[],
-    resBodyEncoder?: ResBodyEncoder<ResBody>,
+    resBodyEncoder?: ResponseBodyEncoder<ResBody>,
 }
 
 export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> {
@@ -27,7 +27,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
   readonly queryParameterDecoder?: QueryParameterDecoder<QueryParameters>;
   readonly middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters>[];
   readonly handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>;
-  readonly resBodyEncoder?: ResBodyEncoder<ResBody>;
+  readonly resBodyEncoder?: ResponseBodyEncoder<ResBody>;
   public context: { [key: string]: any } = {};
 
   constructor({
