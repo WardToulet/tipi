@@ -12,7 +12,7 @@ import { PipelineError } from './errors';
 
 type PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody> = {
     name: string,
-    reqBodyDecoder?: RequestBodyDecoder<ReqBody>,
+    requestBodyDecoder?: RequestBodyDecoder<ReqBody>,
     urlParameterDecoder?: URLParameterDecoder<URLParameters>,
     queryParameterDecoder?: QueryParameterDecoder<QueryParameters>,
     handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>,
@@ -22,16 +22,16 @@ type PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody> = {
 
 export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> {
   readonly name: string;
-  readonly reqBodyDecoder?: RequestBodyDecoder<ReqBody>;
+  readonly requestBodyDecoder?: RequestBodyDecoder<ReqBody>;
   readonly urlParameterDecoder?: URLParameterDecoder<URLParameters>;
   readonly queryParameterDecoder?: QueryParameterDecoder<QueryParameters>;
   readonly middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters>[];
   readonly handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>;
-  readonly resBodyEncoder?: ResponseBodyEncoder<ResBody>;
+  readonly responseBodyEncoder?: ResponseBodyEncoder<ResBody>;
   public context: { [key: string]: any } = {};
 
   constructor({
-    reqBodyDecoder,
+    requestBodyDecoder,
     urlParameterDecoder,
     queryParameterDecoder,
     handleFunc,
@@ -39,21 +39,22 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
     middleware,
     name,
   }: PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody>) {
-    this.reqBodyDecoder = reqBodyDecoder;
+    this.requestBodyDecoder = requestBodyDecoder;
     this.urlParameterDecoder = urlParameterDecoder;
     this.queryParameterDecoder = queryParameterDecoder;
     this.handleFunc = handleFunc;
-    this.resBodyEncoder = resBodyEncoder;
+    this.responseBodyEncoder = resBodyEncoder;
     this.middleware = middleware;
     this.name = name;
   }
 
    async run(path: string, rawBody: string, headers: { [key: string]: string}): Promise<string> {
+     console.log(headers);
      let request = new Request<ReqBody, URLParameters, QueryParameters>({
         path,
         rawBody,
         headers,
-        reqBodyDecoder: this.reqBodyDecoder,
+        requestBodyDecoder: this.requestBodyDecoder,
         urlParameterDecoder: this.urlParameterDecoder,
         queryParameterDecoder: this.queryParameterDecoder,
      });
@@ -65,7 +66,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
 
      const result: ResBody = await this.handleFunc(request);
   
-     return this.resBodyEncoder?.(result) || result.toString();
+     return this.responseBodyEncoder?.(result) || result.toString();
    }
 }
 
@@ -96,7 +97,7 @@ export function createPipeline(module: any, filename: string): Pipeline<any, any
 
   return new Pipeline({
     name,
-    reqBodyDecoder: module.decodeRequestBody,
+    requestBodyDecoder: module.decodeRequestBody,
     urlParameterDecoder: module.decodeURLParameters,
     queryParameterDecoder: module.decodeQueryParameters,
     handleFunc: module.handle,

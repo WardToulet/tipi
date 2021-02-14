@@ -8,7 +8,7 @@ type HTTPErrorProps = {
 export default class HTTPError extends Error {
   readonly status: HTTPStatusCode;
   // Is object is used to set the response type header when returnign to the client
-  private isObject: boolean;
+  readonly isObject: boolean;
 
   constructor({ status, message }: HTTPErrorProps) {
     super();

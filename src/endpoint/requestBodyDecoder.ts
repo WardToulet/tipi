@@ -1,3 +1,3 @@
 export default interface ReqeuestBodyDecoder<ReqBody> {
-  (raw: string): ReqBody,
+  (raw: string, contentType: string): ReqBody,
 }

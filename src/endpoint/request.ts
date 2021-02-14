@@ -3,7 +3,7 @@ import URLParameterDecoder from './urlParameterDecoder';
 import QueryParameterDecoder from './queryParameterDecoder';
 
 type RequestParams<ReqBody, URLParams, QueryParams> = {
-  reqBodyDecoder?: ReqeuestBodyDecoder<ReqBody>,
+  requestBodyDecoder?: ReqeuestBodyDecoder<ReqBody>,
   urlParameterDecoder?: URLParameterDecoder<URLParams>,
   queryParameterDecoder?: QueryParameterDecoder<QueryParams>,
   path: string,
@@ -16,7 +16,7 @@ export default class Request<ReqBody, URLParams, QueryParams> {
   private _urlParams?: URLParams;
   private _queryParams?: QueryParams;
 
-  private reqBodyDecoder: ReqeuestBodyDecoder<ReqBody>;
+  private requestBodyDecoder: ReqeuestBodyDecoder<ReqBody>;
   private urlParameterDecoder: URLParameterDecoder<URLParams>;
   private queryParameterDecoder: QueryParameterDecoder<QueryParams>;
 
@@ -25,14 +25,14 @@ export default class Request<ReqBody, URLParams, QueryParams> {
   readonly headers: { [key: string]: string };
 
   constructor({
-    reqBodyDecoder,
+    requestBodyDecoder,
     urlParameterDecoder,
     queryParameterDecoder,
     path,
     rawBody,
     headers,
   }: RequestParams<ReqBody, URLParams, QueryParams>) {
-    this.reqBodyDecoder = reqBodyDecoder;
+    this.requestBodyDecoder = requestBodyDecoder;
     this.urlParameterDecoder = urlParameterDecoder;
     this.queryParameterDecoder = queryParameterDecoder;
     this.path = path;
@@ -42,10 +42,10 @@ export default class Request<ReqBody, URLParams, QueryParams> {
 
   get body(): ReqBody {
     if(!this._body) {
-      if(!this.reqBodyDecoder) {
+      if(!this.requestBodyDecoder) {
         throw 'Error: tried to acces body no decoder defined';
       }
-      this._body = this.reqBodyDecoder(this.rawBody);
+      this._body = this.requestBodyDecoder(this.rawBody, this.headers['content-type']);
     } 
     return this._body as ReqBody;
   }
