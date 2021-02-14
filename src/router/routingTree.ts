@@ -10,48 +10,53 @@ export default class RoutingTree {
   }
 
   public addRoute(path: string, method: HTTPMethod, pipeline: Pipeline<any, any, any, any>) {
-    const routeParts = path.split('/').slice(1);
-    let node = this.root;
+    const paths = Array.isArray(path) ? path : [ path ];
 
-    for(const part of routeParts) {
-      const isDynamic = part.startsWith('@');
-      const name = isDynamic ? part.slice(1) : part;
+    for(const path of paths) {
+      console.log(path);
+      const routeParts = path.split('/').slice(1);
+      let node = this.root;
 
-      if(isDynamic) {
-        // Init the dynamic route if needed
-        if(!node.dynamic) {
-          node.dynamic = {
-            variable: name,
-            children: {},
+      for(const part of routeParts) {
+        const isDynamic = part.startsWith('@');
+        const name = isDynamic ? part.slice(1) : part;
+
+        if(isDynamic) {
+          // Init the dynamic route if needed
+          if(!node.dynamic) {
+            node.dynamic = {
+              variable: name,
+              children: {},
+            }
+          // Check if the dynamic route variable name is consistent
+          } else {
+            if(node.dynamic.variable != name) {
+              throw new InconistentPathVariableError(node.dynamic.variable, name);
+            }
           }
-        // Check if the dynamic route variable name is consistent
+          node = node.dynamic.children;
         } else {
-          if(node.dynamic.variable != name) {
-            throw new InconistentPathVariableError(node.dynamic.variable, name);
+          // Init the static property if needed
+          if(!node.static) {
+            node.static = {};
           }
-        }
-        node = node.dynamic.children;
-      } else {
-        // Init the static property if needed
-        if(!node.static) {
-          node.static = {};
-        }
 
-        // Init the route if needed
-        if(!node.static[name]) {
-          node.static[name] = {};
-        }
+          // Init the route if needed
+          if(!node.static[name]) {
+            node.static[name] = {};
+          }
 
-        // Set the node to the correct child
-        node = node.static[name];
+          // Set the node to the correct child
+          node = node.static[name];
+        }
       }
-    }
 
-    if(!node.leafs) {
-      node.leafs = {};
-    }
+      if(!node.leafs) {
+        node.leafs = {};
+      }
 
-    node.leafs[method] = pipeline;
+      node.leafs[method] = pipeline;
+    }
   }
 
   /**
