@@ -1,6 +1,7 @@
 import ReqeuestBodyDecoder from './requestBodyDecoder';
 import URLParameterDecoder from './urlParameterDecoder';
 import QueryParameterDecoder from './queryParameterDecoder';
+import { IncomingHttpHeaders } from 'http';
 
 type RequestParams<ReqBody, URLParams, QueryParams> = {
   requestBodyDecoder?: ReqeuestBodyDecoder<ReqBody>,
@@ -8,7 +9,7 @@ type RequestParams<ReqBody, URLParams, QueryParams> = {
   queryParameterDecoder?: QueryParameterDecoder<QueryParams>,
   path: string,
   rawBody?: string,
-  headers: { [key: string]: string },
+  headers: IncomingHttpHeaders,
 }
 
 export default class Request<ReqBody, URLParams, QueryParams> {
@@ -22,7 +23,7 @@ export default class Request<ReqBody, URLParams, QueryParams> {
 
   readonly path: string;
   private rawBody: string;
-  readonly headers: { [key: string]: string };
+  readonly headers: IncomingHttpHeaders;
 
   constructor({
     requestBodyDecoder,

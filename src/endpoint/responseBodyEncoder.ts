@@ -1,8 +1,14 @@
-export default interface ResponseBodyEncoder<ResponseBody> {
-  (res: ResponseBody): string,
+export type ResponesBodyMeta = {
+  'Content-Type': string,
 }
 
-export const responseBodyEncoder = {
-  string: (raw: any) => raw.toString(),
-  json: (raw: any) => JSON.stringify(raw),
+export default interface ResponseBodyEncoder<ResponseBody> {
+  (res: ResponseBody): { body: string, headers?: ResponesBodyMeta },
+}
+
+export const responseBodyEncoder: { [key: string]: ResponseBodyEncoder<any> } = {
+  string: (raw: any) => 
+    ({ body: raw.toString(), headers: { 'Content-Type': 'application/json' } }),
+  json: (raw: any) => 
+    ({ body: JSON.stringify(raw), headers: { 'Content-Type': 'application/text' } }),
 }

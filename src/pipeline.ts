@@ -1,3 +1,5 @@
+import http, {IncomingHttpHeaders, OutgoingHttpHeaders} from 'http';
+
 import {
   RequestBodyDecoder,
   URLParameterDecoder,
@@ -47,28 +49,36 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
     this.middleware = middleware;
     this.name = name;
   }
-
-   async run(path: string, rawBody: string, headers: { [key: string]: string}): Promise<string> {
-     console.log(headers);
-     let request = new Request<ReqBody, URLParameters, QueryParameters>({
-        path,
-        rawBody,
-        headers,
-        requestBodyDecoder: this.requestBodyDecoder,
-        urlParameterDecoder: this.urlParameterDecoder,
-        queryParameterDecoder: this.queryParameterDecoder,
-     });
-
-     for(const middleware of this.middleware || [] ) {
-        // Await on each middleware function because it must run in order
-        request = await middleware(request);
-     }
-
-     const result: ResBody = await this.handleFunc(request);
   
-     return this.responseBodyEncoder?.(result) || result.toString();
-   }
+  async run(path: string, rawBody: string, headers: IncomingHttpHeaders)
+     : Promise<{ body: string, headers: OutgoingHttpHeaders}>
+  {
+    let request = new Request<ReqBody, URLParameters, QueryParameters>({
+      path,
+      rawBody,
+      headers,
+      requestBodyDecoder: this.requestBodyDecoder,
+      urlParameterDecoder: this.urlParameterDecoder,
+      queryParameterDecoder: this.queryParameterDecoder,
+    });
+
+    for(const middleware of this.middleware || [] ) {
+      // Await on each middleware function because it must run in order
+      request = await middleware(request);
+    }
+
+    const result: ResBody = await this.handleFunc(request);
+
+    if(this.responseBodyEncoder) {
+      const { headers, body } = this.responseBodyEncoder(result);
+      console.log('pipeline', headers, body);
+      return { body, headers: headers || {} }; } 
+    else {
+      return { body: result.toString(), headers: { 'content-type': 'applipcation/text' }};
+    }
+  }
 }
+
 
 export function createPipeline(module: any, filename: string): Pipeline<any, any, any, any> {
   // If a name is defined use the defined name otherwise use the filename

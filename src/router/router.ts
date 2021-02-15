@@ -27,8 +27,11 @@ class Router {
       // Handle the request when it is fully recieved
       req.on('end', async () => {
         try {
-          const response = await pipeline.run(req.url, body, req.headers as { [key: string]: string });
-          res.end(response);
+          const response = await pipeline.run(req.url, body, req.headers);
+          // Set headers
+          Object.entries(response.headers).forEach(([header, value]) => res.setHeader(header, value));
+
+          res.end(response.body);
         } catch(err) { 
           // Thrown if pipeline fails
           handleHTTPError(res, err);
