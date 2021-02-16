@@ -73,7 +73,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
       const { headers, body } = this.responseBodyEncoder(result);
       return { body, headers: headers || {} }; } 
     else {
-      return { body: result.toString(), headers: { 'content-type': 'applipcation/text' }};
+      return { body: result.toString(), headers: { 'content-type': 'text/plain;CHARSET=utf-8' }};
     }
   }
 }
@@ -82,27 +82,6 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
 export function createPipeline(module: any, filename: string): Pipeline<any, any, any, any> {
   // If a name is defined use the defined name otherwise use the filename
   const name = module.name || filename?.split('/').pop();
-
-  // if(!module.handle) {
-  //    throw new PipelineError({
-  //      pipeline: name,
-  //      message: 'No handle func',
-  //    });
-  // }
-
-  // if(!module.method) {
-  //   throw new PipelineError({
-  //     pipeline: name,
-  //     message: 'No method defined',
-  //   });
-  // }
-
-  // if(!module.path) {
-  //   throw new PipelineError({
-  //     pipeline: name, 
-  //     message: 'No path defined',
-  //   });
-  // }
 
   return new Pipeline({
     name,

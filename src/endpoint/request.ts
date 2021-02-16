@@ -2,6 +2,7 @@ import ReqeuestBodyDecoder from './requestBodyDecoder';
 import URLParameterDecoder from './urlParameterDecoder';
 import QueryParameterDecoder from './queryParameterDecoder';
 import { IncomingHttpHeaders } from 'http';
+import Log from '../log/log';
 
 type RequestParams<ReqBody, URLParams, QueryParams> = {
   requestBodyDecoder?: ReqeuestBodyDecoder<ReqBody>,
@@ -44,7 +45,12 @@ export default class Request<ReqBody, URLParams, QueryParams> {
   get body(): ReqBody {
     if(!this._body) {
       if(!this.requestBodyDecoder) {
-        throw 'Error: tried to acces body no decoder defined';
+        throw  new Log({
+          level: 'ERROR',
+          message: 'Error: tried to acces body no decoder defined',
+          // TODO: use the name or somethign
+          tag: this.path,
+        }) 
       }
       this._body = this.requestBodyDecoder(this.rawBody, this.headers['content-type']);
     } 
@@ -54,7 +60,11 @@ export default class Request<ReqBody, URLParams, QueryParams> {
   get urlParameters(): URLParams {
     if(!this._urlParams) {
       if(!this.urlParameterDecoder) {
-        throw 'Error: tried to access url parameters no decoder defined';
+        throw new Log({
+          level: 'ERROR',
+          message: 'Error: tried to access url parameters no decoder defined',
+          tag: this.path,
+        });
       }
       this._urlParams = this.urlParameterDecoder(this.path);
     }
@@ -64,7 +74,12 @@ export default class Request<ReqBody, URLParams, QueryParams> {
   get queryParameters(): QueryParams {
     if(!this._queryParams) {
       if(!this.queryParameterDecoder) {
-        throw 'Error: tried to access query parameters no decoder defined';
+        throw new Log({
+          level: 'ERROR',
+          message: 'Error: tried to access query parameters no decoder defined',
+          tag: this.path,
+        });
+
       }
       this._queryParams = this.queryParameterDecoder(this.path);
     }

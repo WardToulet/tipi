@@ -1,7 +1,7 @@
 import { isHttpMethod } from "../httpHelpers";
-import { EndpointError } from "../errors";
 import {} from 'util';
 import {extractPathVariableNames} from "..";
+import Log from "../log/log";
 
 /**
  * Checks the module before being ran through the preloadFunctions
@@ -9,24 +9,39 @@ import {extractPathVariableNames} from "..";
 export default function preCheck({ handle, path, method }: any) {
   // Handle checks
   if(!handle) {
-    throw new EndpointError({ message: 'Does not export handle'});
+    throw new Log({
+      level: 'ERROR',
+      message: 'Does not export handle',
+    });
   }
   if(typeof handle !== 'function') {
-    throw new EndpointError({ message: 'The handle export is not a function'});
+    throw new Log({
+      level: 'ERROR',
+      message: 'The handle export is not a function'
+    });
   }
 
   // Method checks
   if(!method) {
-    throw new EndpointError({ message: 'Does not export method'});
+    throw new Log({
+      level: 'ERROR',
+      message: 'Does not export method'
+    });
   }
   if(!isHttpMethod(method)) {
-    throw new EndpointError({ message: `Method "${method}" is not a valid HTTP method`});
+    throw new Log({
+      level: 'ERROR',
+      message: `Method "${method}" is not a valid HTTP method`
+    });
   }
 
 
   // Path check
   if(!path) {
-    throw new EndpointError({ message: 'Does not export path'});
+    throw new Log({
+      level: 'ERROR',
+      message: 'Does not export path'
+    });
   }
 
   // If the paths is a single string wrap it in an array
@@ -34,13 +49,19 @@ export default function preCheck({ handle, path, method }: any) {
 
   // Checks if the path array is not empty
   if(paths.length === 0) {
-    throw new EndpointError({ message: 'The path export cannot be an empty array'});
+    throw new Log({ 
+      level: 'ERROR',
+      message: 'The path export cannot be an empty array'
+    });
   }
 
   for(const path of paths) {
     // Check if path starts with '/'
     if(!path.startsWith('/')) {
-      throw new EndpointError({ message: `Path "${path}" must start with a "/"`});
+      throw new Log({
+        level: 'ERROR',
+        message: `Path "${path}" must start with a "/"`
+      });
     }
 
     // TODO: check if all characters are valid
@@ -49,7 +70,10 @@ export default function preCheck({ handle, path, method }: any) {
     const pathVariables = extractPathVariableNames(path);
     for(const [ index, variable ] of pathVariables.entries()) {
       if(pathVariables.indexOf(variable) !== index) {
-        throw new EndpointError({ message: `Path "${path}" main only define the variable "${variable}" once` });
+        throw new Log({
+          level: 'ERROR',
+          message: `Path "${path}" main only define the variable "${variable}" once` 
+        });
       }
     }
   }
@@ -61,7 +85,10 @@ export default function preCheck({ handle, path, method }: any) {
   for(let pi = 1; pi < variables.length; pi++) {
     for(let i = 0; i < variables.map(x => x.length).reduce((max, x) => x > max ? x : max, 0); i++) {
       if(ref[i] !== variables[pi]?.[i]) {
-        throw new EndpointError({ message: `Paths "${path.join(', ')}" must all define the same variables`});
+        throw new Log({ 
+          level: 'ERROR',
+          message: `Paths "${path.join(', ')}" must all define the same variables`
+        });
       }
     }
   }

@@ -13,7 +13,6 @@ export default class RoutingTree {
     const paths = Array.isArray(path) ? path : [ path ];
 
     for(const path of paths) {
-      console.log(path);
       const routeParts = path.split('/').slice(1);
       let node = this.root;
 

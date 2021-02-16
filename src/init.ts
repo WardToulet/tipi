@@ -5,18 +5,24 @@ import { listFilesInDirRecrusively } from './util';
 import { HTTPMethod } from './httpHelpers';
 import { createPipeline } from './pipeline';
 import preCheck from './endpoint/preCheck';
-import {postCheck} from '.';
+import { postCheck } from '.';
+import { Logger, simpleLogger, Log } from './log';
 
 type InitProps = {
   endpoints: string,
   // All the preloads that run on the endpoints
   preload?: PreloadFunc[]
+  logger?: Logger,
 }
 
 /**
  * Initializes wetu and returns a http router
  */
-export default async function init({ endpoints, preload = []}: InitProps):
+export default async function init({ 
+  endpoints, 
+  preload = [],
+  logger = simpleLogger,
+}: InitProps):
   Promise<(req: http.IncomingMessage, res: http.ServerResponse) => void>
 {
   const router = new Router();
@@ -39,9 +45,20 @@ export default async function init({ endpoints, preload = []}: InitProps):
         postCheck(module);
 
         router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(module, filename));
-      } catch(err) {
-        // Add the module to the error
-        console.error(`[error][${module.name || filename}]${err.message}`);
+
+        logger(new Log({
+          level: 'LOG',
+          message: `Mounted at ${(Array.isArray(module.path) ? module.path : [ module.path ]).map((x: string) => `"${x}"`).join(', ')}`,
+          tag: module.name || filename.split('/').pop(),
+        }));
+      } catch(error) {
+        if(error instanceof Log) {
+          // Add the name of the endpoint
+          error.addTag(module.name || filename.split('/').pop())
+          logger(error);
+        } else {
+          console.error(error);
+        }
       }
     }
 
