@@ -5,6 +5,7 @@ import { listFilesInDirRecrusively } from './util';
 import { HTTPMethod } from './httpHelpers';
 import { createPipeline } from './pipeline';
 import preCheck from './endpoint/preCheck';
+import {postCheck} from '.';
 
 type InitProps = {
   endpoints: string,
@@ -33,6 +34,9 @@ export default async function init({ endpoints, preload = []}: InitProps):
         for(const preloadFunction of preload) {
           module = preloadFunction(module); 
         }
+
+        // Do post checks
+        postCheck(module);
 
         router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(module, filename));
       } catch(err) {
