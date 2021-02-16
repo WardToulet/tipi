@@ -4,6 +4,7 @@ import { Router } from './router';
 import { listFilesInDirRecrusively } from './util';
 import { HTTPMethod } from './httpHelpers';
 import { createPipeline } from './pipeline';
+import preCheck from './endpoint/preCheck';
 
 type InitProps = {
   endpoints: string,
@@ -26,14 +27,17 @@ export default async function init({ endpoints, preload = []}: InitProps):
     // If a preloadFunction throws the loading of the endpoint is canceled
     for(let [ module, filename ] of await Promise.all(modules)) {
       try {
+        // Do prechecks
+        preCheck(module);
+
         for(const preloadFunction of preload) {
           module = preloadFunction(module); 
         }
+
         router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(module, filename));
       } catch(err) {
         // Add the module to the error
         console.error(`[error][${module.name || filename}]${err.message}`);
-        break;
       }
     }
 

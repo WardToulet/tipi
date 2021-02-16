@@ -17,3 +17,5 @@ export async function listFilesInDirRecrusively(
 
   return results;
 }
+
+export { default as extractPathVariableNames } from './extractPathVariableNames';
