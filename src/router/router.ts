@@ -80,23 +80,28 @@ type LoadEndpointsProps = {
   preloadFunctions?: PreloadFunc[];
 }
 
-export async function loadEndpoints({ path, preloadFunctions: transformers = []}: LoadEndpointsProps):
+export async function loadEndpoints({ path, preloadFunctions = []}: LoadEndpointsProps):
   Promise<(req: http.IncomingMessage, res: http.ServerResponse) => void>
 {
   const router = new Router();
 
-  const imports = (await listFilesInDirRecrusively(path))
+  const modules = (await listFilesInDirRecrusively(path))
     .filter(x => x.match(/[a-zA-Z0-9]\.(js|ts)$/))
     .map(module => Promise.all([import(module), Promise.resolve(module)]));
 
-  (await Promise.all(imports)).forEach(([module, filename]) => {
-    try {
-      let tranformed = transformers.reduce((module, transformer) => transformer(module), module);
-      router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(tranformed, filename))
-    } catch(err) {
-      console.log(err.message);
+    // If a preloadFunction throws the loading of the endpoint is canceled
+    for(let [ module, filename ] of await Promise.all(modules)) {
+      try {
+        for(const preloadFunction of preloadFunctions) {
+          module = preloadFunction(module); 
+        }
+        router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(module, filename));
+      } catch(err) {
+        // Add the module to the error
+        console.error(`[error][${module.name || filename}]${err.message}`);
+        break;
+      }
     }
-  })
 
   return router.handler.bind(router);
 }
