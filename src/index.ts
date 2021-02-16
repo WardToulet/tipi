@@ -1,3 +1,6 @@
+import init from './init';
+export default init;
+
 export * from './router';
 export * from './util';
 export * from './endpoint';

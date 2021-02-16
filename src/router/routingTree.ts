@@ -67,7 +67,14 @@ export default class RoutingTree {
    */
   // Throws HTTPErrors instead of returning undefined to allow the difference between 404 and 405
   public getPipeline(path: string, method: HTTPMethod): Pipeline<any, any, any, any> {
-    const pathParts = path.split('/').filter(p => p !== '');
+    const pathParts = path
+      // Remove the query part
+      .split('?')[0]
+      // Split in to parts
+      .split('/')
+      // Remove empty parts (before first / and after ending / if presnet)
+      .filter(p => p !== '');
+
     let node = this.root;
 
     // Loop throug the parts of the path checking the tree if they exist

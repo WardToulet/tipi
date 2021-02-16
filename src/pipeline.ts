@@ -71,7 +71,6 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
 
     if(this.responseBodyEncoder) {
       const { headers, body } = this.responseBodyEncoder(result);
-      console.log('pipeline', headers, body);
       return { body, headers: headers || {} }; } 
     else {
       return { body: result.toString(), headers: { 'content-type': 'applipcation/text' }};

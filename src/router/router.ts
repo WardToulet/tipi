@@ -6,7 +6,7 @@ import { PreloadFunc } from '../preload';
 import { HTTPMethod } from '../httpHelpers';
 import {HTTPError} from '../errors';
 
-class Router {
+export default class Router {
   private routingTree: RoutingTree;
  
   constructor() {
@@ -69,39 +69,8 @@ function handleHTTPError(res: http.ServerResponse, error: HTTPError) {
   // and an internal server error will be send to the client
     
     // TODO: reference the endpoint that throwed the error
-    console.error(`[tipi/router]: X threw a non http error ${error.message || error }`);
+    console.error(`[router]: X threw a non http error ${error.message || error }`);
     res.statusCode = 500;
     res.end('Internal server error');
   }
-}
-
-type LoadEndpointsProps = {
-  path: string,
-  preloadFunctions?: PreloadFunc[];
-}
-
-export async function loadEndpoints({ path, preloadFunctions = []}: LoadEndpointsProps):
-  Promise<(req: http.IncomingMessage, res: http.ServerResponse) => void>
-{
-  const router = new Router();
-
-  const modules = (await listFilesInDirRecrusively(path))
-    .filter(x => x.match(/[a-zA-Z0-9]\.(js|ts)$/))
-    .map(module => Promise.all([import(module), Promise.resolve(module)]));
-
-    // If a preloadFunction throws the loading of the endpoint is canceled
-    for(let [ module, filename ] of await Promise.all(modules)) {
-      try {
-        for(const preloadFunction of preloadFunctions) {
-          module = preloadFunction(module); 
-        }
-        router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(module, filename));
-      } catch(err) {
-        // Add the module to the error
-        console.error(`[error][${module.name || filename}]${err.message}`);
-        break;
-      }
-    }
-
-  return router.handler.bind(router);
 }
