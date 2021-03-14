@@ -17,3 +17,9 @@ exporting even more as to increase readablity and decrease code size.
 - [ ] Typed context?, the context is now a object of type `{ [key: string]: any }`
     It might be nice to get that typed for endusers, as this is populated 
     by middleware we can't be shure that the data will actually be present though.
+
+## Context
+
+Context is a part of the request that can be added to by the middleware to
+be typesafe the context must be a defined class which before executing the handle
+function is checkt to be fully populated
