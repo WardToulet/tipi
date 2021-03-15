@@ -10,7 +10,7 @@ import {
   mapHTTPError,
   PreloadError,
   extractPathVariableNames,
-} from 'wetu';
+} from 'tipi';
 
 
 /**

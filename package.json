@@ -1,9 +1,9 @@
 {
     "private": true,
     "workspaces": [
-        "wetu",
-        "wetu-demo",
-        "wetu-simple-encoding"
+        "tipi",
+        "tipi-demo",
+        "tipi-simple-encoding"
     ],
     "scripts": {}
 }

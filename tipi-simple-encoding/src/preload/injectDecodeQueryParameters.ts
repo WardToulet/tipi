@@ -9,7 +9,7 @@ import {
 
   mapHTTPError,
   PreloadError,
-} from 'wetu';
+} from 'tipi';
 
 
 /**

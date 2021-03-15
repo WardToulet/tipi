@@ -7,7 +7,7 @@ import {
   mapHTTPError,
   RequestBodyDecoder,
   HTTPError,
-} from 'wetu';
+} from 'tipi';
 
 
 /**

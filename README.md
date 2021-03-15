@@ -1,4 +1,4 @@
-# Wetu
+# Tipi
 
 Wetu is a straigtfourward HTTP routing library, powered by dynamicaly loaded endpoints 
 inspired by [simple-endpoint]('https://github.com/SimonBackx/simple-endpoints') 
@@ -7,10 +7,10 @@ code size.
 
 ## Packages
 
-### Wetu
+### tipi
 
 The routing library.
 
-### Wetu-simple encoding
+### tipi-simple-encoding
 
 A bridge between wetu and simple encoding.

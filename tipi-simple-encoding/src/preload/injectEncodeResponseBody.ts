@@ -2,7 +2,7 @@ import {
   PreloadFunc, 
   conditional,
   mapProperty,
-} from 'wetu';
+} from 'tipi';
 
 
 /**
