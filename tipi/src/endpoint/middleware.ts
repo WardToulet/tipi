@@ -8,6 +8,6 @@ import Request from './request';
  * @throws When a MiddlewareFunc throws the request is terminated and an apporiate
  * statuscode is send to the client.
  */
-export default interface MiddlewareFunc<ReqBody, URLParameters, QueryParameters> {
-  (req: Request<ReqBody, URLParameters, QueryParameters>): Promise<Request<ReqBody, URLParameters, QueryParameters>>
+export default interface MiddlewareFunc<ReqBody, URLParameters, QueryParameters, Context> {
+  (req: Request<ReqBody, URLParameters, QueryParameters, Context>): Promise<Request<ReqBody, URLParameters, QueryParameters, Context>>
 }

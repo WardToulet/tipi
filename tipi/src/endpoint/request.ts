@@ -13,11 +13,11 @@ type RequestParams<ReqBody, URLParams, QueryParams> = {
   headers: IncomingHttpHeaders,
 }
 
-export default class Request<ReqBody, URLParams, QueryParams> {
+export default class Request<ReqBody, URLParams, QueryParams, Context> {
   private _body?: ReqBody;
   private _urlParams?: URLParams;
   private _queryParams?: QueryParams;
-  private _context: { [key: string]: any };
+  private _context: Context;
 
   private requestBodyDecoder: ReqeuestBodyDecoder<ReqBody>;
   private urlParameterDecoder: URLParameterDecoder<URLParams>;
@@ -35,7 +35,7 @@ export default class Request<ReqBody, URLParams, QueryParams> {
     rawBody,
     headers,
   }: RequestParams<ReqBody, URLParams, QueryParams>) {
-    this._context = {};
+    this._context = {} as Context;
     this.requestBodyDecoder = requestBodyDecoder;
     this.urlParameterDecoder = urlParameterDecoder;
     this.queryParameterDecoder = queryParameterDecoder;
@@ -87,8 +87,8 @@ export default class Request<ReqBody, URLParams, QueryParams> {
     return this._queryParams;
   }
 
-  get context(): { [key: string]: any } {
-    return new Proxy(this._context, {
+  get context(): Context {
+    return new Proxy(this._context as Object, {
       get(target, prop) {
         if(target[String(prop)] === undefined) {
           throw new Log({
@@ -100,6 +100,6 @@ export default class Request<ReqBody, URLParams, QueryParams> {
           return target[String(prop)];
         }
       }
-    });
+    }) as Context;
   }
 }

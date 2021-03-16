@@ -9,6 +9,6 @@ import Request from './request';
  * @returns {Promise<ResBody>} The data that can be send to the client that made the request (unmarchalled)
  *
  */
-export default interface HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody> {
-  (req: Request<ReqBody, URLParameters, QueryParameters>): Promise<ResBody>
+export default interface HandleFunc<ReqBody, URLParameters, QueryParameters, Context, ResBody> {
+  (req: Request<ReqBody, URLParameters, QueryParameters, Context>): Promise<ResBody>
 }

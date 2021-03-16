@@ -1,8 +1,6 @@
 import http from 'http';
-import Pipeline, { createPipeline } from '../pipeline';
-import { listFilesInDirRecrusively } from '../util';
+import Pipeline from '../pipeline';
 import RoutingTree from './routingTree';
-import { PreloadFunc } from '../preload';
 import { HTTPMethod } from '../httpHelpers';
 import {HTTPError} from '../errors';
 
@@ -29,7 +27,8 @@ export default class Router {
         try {
           const response = await pipeline.run(req.url, body, req.headers);
           // Set headers
-          Object.entries(response.headers).forEach(([header, value]) => res.setHeader(header, value));
+          // TODO: replace string cast
+          Object.entries(response.headers).forEach(([header, value]) => res.setHeader(header, value as string));
 
           res.end(response.body);
         } catch(err) { 
@@ -43,7 +42,7 @@ export default class Router {
     }
   }
 
-  public addEndpoint(path: string, method: HTTPMethod, pipeline: Pipeline<any, any, any, any>) {
+  public addEndpoint(path: string, method: HTTPMethod, pipeline: Pipeline<any, any, any, any, any>) {
     try {
       this.routingTree.addRoute(path, method, pipeline);
     } catch(err) {

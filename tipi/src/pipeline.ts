@@ -1,4 +1,4 @@
-import http, {IncomingHttpHeaders, OutgoingHttpHeaders} from 'http';
+import {IncomingHttpHeaders, OutgoingHttpHeaders} from 'http';
 
 import {
   RequestBodyDecoder,
@@ -10,27 +10,25 @@ import {
   Request,
 } from './endpoint';
 
-import { PipelineError } from './errors';
 
-type PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody> = {
+type PipelineArgs<ReqBody, URLParameters, QueryParameters, Context, ResBody> = {
     name: string,
     requestBodyDecoder?: RequestBodyDecoder<ReqBody>,
     urlParameterDecoder?: URLParameterDecoder<URLParameters>,
     queryParameterDecoder?: QueryParameterDecoder<QueryParameters>,
-    handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>,
-    middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters>[],
+    handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, Context, ResBody>,
+    middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters, Context>[],
     resBodyEncoder?: ResponseBodyEncoder<ResBody>,
 }
 
-export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> {
+export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, ResBody> {
   readonly name: string;
   readonly requestBodyDecoder?: RequestBodyDecoder<ReqBody>;
   readonly urlParameterDecoder?: URLParameterDecoder<URLParameters>;
   readonly queryParameterDecoder?: QueryParameterDecoder<QueryParameters>;
-  readonly middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters>[];
-  readonly handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, ResBody>;
-  readonly responseBodyEncoder?: ResponseBodyEncoder<ResBody>;
-  public context: { [key: string]: any } = {};
+  readonly middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters, Context>[];
+  readonly handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, Context, ResBody>;
+  readonly responseBodyEncoder?: ResponseBodyEncoder<ResBody>; 
 
   constructor({
     requestBodyDecoder,
@@ -40,7 +38,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
     resBodyEncoder,
     middleware,
     name,
-  }: PipelineArgs<ReqBody, URLParameters, QueryParameters, ResBody>) {
+  }: PipelineArgs<ReqBody, URLParameters, QueryParameters, Context,ResBody>) {
     this.requestBodyDecoder = requestBodyDecoder;
     this.urlParameterDecoder = urlParameterDecoder;
     this.queryParameterDecoder = queryParameterDecoder;
@@ -53,7 +51,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
   async run(path: string, rawBody: string, headers: IncomingHttpHeaders)
      : Promise<{ body: string, headers: OutgoingHttpHeaders}>
   {
-    let request = new Request<ReqBody, URLParameters, QueryParameters>({
+    let request = new Request<ReqBody, URLParameters, QueryParameters, Context>({
       path,
       rawBody,
       headers,
@@ -79,7 +77,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, ResBody> 
 }
 
 
-export function createPipeline(module: any, filename: string): Pipeline<any, any, any, any> {
+export function createPipeline(module: any, filename: string): Pipeline<any, any, any, any, any> {
   // If a name is defined use the defined name otherwise use the filename
   const name = module.name || filename?.split('/').pop();
 
