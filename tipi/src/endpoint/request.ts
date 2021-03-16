@@ -17,6 +17,7 @@ export default class Request<ReqBody, URLParams, QueryParams> {
   private _body?: ReqBody;
   private _urlParams?: URLParams;
   private _queryParams?: QueryParams;
+  private _context: { [key: string]: any };
 
   private requestBodyDecoder: ReqeuestBodyDecoder<ReqBody>;
   private urlParameterDecoder: URLParameterDecoder<URLParams>;
@@ -34,6 +35,7 @@ export default class Request<ReqBody, URLParams, QueryParams> {
     rawBody,
     headers,
   }: RequestParams<ReqBody, URLParams, QueryParams>) {
+    this._context = {};
     this.requestBodyDecoder = requestBodyDecoder;
     this.urlParameterDecoder = urlParameterDecoder;
     this.queryParameterDecoder = queryParameterDecoder;
@@ -48,7 +50,6 @@ export default class Request<ReqBody, URLParams, QueryParams> {
         throw  new Log({
           level: 'ERROR',
           message: 'Error: tried to acces body no decoder defined',
-          // TODO: use the name or somethign
           tag: this.path,
         }) 
       }
@@ -84,5 +85,21 @@ export default class Request<ReqBody, URLParams, QueryParams> {
       this._queryParams = this.queryParameterDecoder(this.path);
     }
     return this._queryParams;
+  }
+
+  get context(): { [key: string]: any } {
+    return new Proxy(this._context, {
+      get(target, prop) {
+        if(target[String(prop)] === undefined) {
+          throw new Log({
+            level: 'ERROR',
+            message: `Error: tried to access context property "${String(prop)}", which is undefined`,
+            tag: this.path,
+          });
+        } else {
+          return target[String(prop)];
+        }
+      }
+    });
   }
 }
