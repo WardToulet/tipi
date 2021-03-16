@@ -5,9 +5,17 @@ import Request from './request';
  * it is the function that is eventually executed when the endpoint gets called.
  *
  * @param req {Request} Incapsulates the request made by the client
- * @throws If a HandleFunc throws the request is canceled an an error code gets send to the client
- * @returns {Promise<ResBody>} The data that can be send to the client that made the request (unmarchalled)
+ * @throws `HTTPError` if the request could not be handled
+ * @returns `Promise<ResBody>` The response
  *
+ * @example
+ * A simple hello world hanndle function that has no parameters, context or body 
+ * and returns a string
+ * ```
+ * export const handle: HandleFunc<undefined, undefined, undefined, undefined, string> = async () => {
+ *   return 'Hello world';
+ * }
+ * ```
  */
 export default interface HandleFunc<ReqBody, URLParameters, QueryParameters, Context, ResBody> {
   (req: Request<ReqBody, URLParameters, QueryParameters, Context>): Promise<ResBody>
