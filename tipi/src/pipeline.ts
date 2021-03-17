@@ -21,6 +21,9 @@ type PipelineArgs<ReqBody, URLParameters, QueryParameters, Context, ResBody> = {
     resBodyEncoder?: ResponseBodyEncoder<ResBody>,
 }
 
+/**
+ * Pipeline encapsulates all the logic for handeling a request of an endpoint
+ */
 export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, ResBody> {
   readonly name: string;
   readonly requestBodyDecoder?: RequestBodyDecoder<ReqBody>;
@@ -48,6 +51,10 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, 
     this.name = name;
   }
   
+  /**
+   * Run the middleware, handler and response encoder, the decoders for the requestBody,
+   * queryParameters and URLParameters are ran lazaly the frist time they are requested.
+   */
   async run(path: string, rawBody: string, headers: IncomingHttpHeaders)
      : Promise<{ body: string, headers: OutgoingHttpHeaders}>
   {
@@ -60,13 +67,17 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, 
       queryParameterDecoder: this.queryParameterDecoder,
     });
 
+    // Run the middleware functions
     for(const middleware of this.middleware || [] ) {
       // Await on each middleware function because it must run in order
       request = await middleware(request);
     }
 
+    // Run the handler function
     const result: ResBody = await this.handleFunc(request);
 
+    // If there is not responseBodyEncoder specified, 
+    // the body will be encoded using the toString method
     if(this.responseBodyEncoder) {
       const { headers, body } = this.responseBodyEncoder(result);
       return { body, headers: headers || {} }; } 
