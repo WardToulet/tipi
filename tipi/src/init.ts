@@ -10,13 +10,12 @@ import { Logger, simpleLogger, Log } from './log';
 
 type InitProps = {
   endpoints: string,
-  // All the preloads that run on the endpoints
   preload?: PreloadFunc[]
   logger?: Logger,
 }
 
 /**
- * Initializes wetu and returns a http router
+ * Initializes tipi and returns a http router
  */
 export default async function init({ 
   endpoints, 
@@ -28,7 +27,8 @@ export default async function init({
   const router = new Router();
 
   const modules = (await listFilesInDirRecrusively(endpoints))
-    .filter(x => x.match(/[a-zA-Z0-9]\.(js|ts)$/))
+    // Filter out ts files as these are only d.ts files at runtime an we can not use them
+    .filter(x => x.endsWith('.js'))
     .map(module => Promise.all([import(module), Promise.resolve(module)]));
 
     // If a preloadFunction throws the loading of the endpoint is canceled

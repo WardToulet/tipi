@@ -19,12 +19,12 @@ export default class Request<ReqBody, URLParams, QueryParams, Context> {
   private _queryParams?: QueryParams;
   private _context: Context;
 
-  private requestBodyDecoder: ReqeuestBodyDecoder<ReqBody>;
-  private urlParameterDecoder: URLParameterDecoder<URLParams>;
-  private queryParameterDecoder: QueryParameterDecoder<QueryParams>;
+  private requestBodyDecoder?: ReqeuestBodyDecoder<ReqBody>;
+  private urlParameterDecoder?: URLParameterDecoder<URLParams>;
+  private queryParameterDecoder?: QueryParameterDecoder<QueryParams>;
 
   readonly path: string;
-  private rawBody: string;
+  private rawBody?: string;
   readonly headers: IncomingHttpHeaders;
 
   constructor({
@@ -53,7 +53,7 @@ export default class Request<ReqBody, URLParams, QueryParams, Context> {
           tag: this.path,
         }) 
       }
-      this._body = this.requestBodyDecoder(this.rawBody, this.headers['content-type']);
+      this._body = this.rawBody ? this.requestBodyDecoder(this.rawBody, this.headers['content-type'] as string) : undefined;
     } 
     return this._body as ReqBody;
   }

@@ -74,9 +74,9 @@ export default class RoutingTree {
       // Remove empty parts (before first / and after ending / if presnet)
       .filter(p => p !== '');
 
-    let node = this.root;
+    let node: Node | undefined = this.root;
 
-    // Loop throug the parts of the path checking the tree if they exist
+    // Loop through the parts of the path checking the tree if they exist
     for(const part of pathParts) {
       node = node.static?.[part] || node.dynamic?.children;
 

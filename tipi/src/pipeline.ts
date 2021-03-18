@@ -82,7 +82,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, 
       const { headers, body } = this.responseBodyEncoder(result);
       return { body, headers: headers || {} }; } 
     else {
-      return { body: result.toString(), headers: { 'content-type': 'text/plain;CHARSET=utf-8' }};
+      return { body: String(result), headers: { 'content-type': 'text/plain;CHARSET=utf-8' }};
     }
   }
 }
