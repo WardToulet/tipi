@@ -10,7 +10,13 @@ import { Logger, simpleLogger, Log } from './log';
 
 type InitProps = {
   endpoints: string,
-  match?: RegExp,
+  /**
+   * Takes the filename of a file inside the `endpoints` directory, 
+   * if it returns false this file will be ignored by tipi
+   *
+   * Note: all valid endpoints still are .js files
+   */
+  match?: (filename: string) => boolean,
   preload?: PreloadFunc[]
   logger?: Logger,
 }
@@ -28,12 +34,16 @@ export default async function init({
 {
   const router = new Router();
 
+  // If no match function is provided allow all files
+  const isModule = match || (() => true);
+
   const modules = (await listFilesInDirRecrusively(endpoints))
-    // Use the match expression to check if the file is an endpoint the checking the final extention
-    .filter(x => {
-      return match ? (match as RegExp).test(x.split('/').pop() as string) : true
-        && x.endsWith('.js');
-    })
+    // Check if the file is a .js file
+    .filter(x => x.endsWith('.js'))
+    // Use the provided match method to check if the file is an endpoint
+    .filter(x => isModule(x.split('/').pop() as string))
+    // Load the module dynamically because this returns a promise 
+    // we wrap the loaded module and the path in another promise
     .map(module => Promise.all([import(module), Promise.resolve(module)]));
 
     // If a preloadFunction throws the loading of the endpoint is canceled
