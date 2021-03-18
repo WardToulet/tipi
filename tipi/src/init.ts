@@ -10,6 +10,7 @@ import { Logger, simpleLogger, Log } from './log';
 
 type InitProps = {
   endpoints: string,
+  match?: RegExp,
   preload?: PreloadFunc[]
   logger?: Logger,
 }
@@ -21,14 +22,18 @@ export default async function init({
   endpoints, 
   preload = [],
   logger = simpleLogger,
+  match,
 }: InitProps):
   Promise<(req: http.IncomingMessage, res: http.ServerResponse) => void>
 {
   const router = new Router();
 
   const modules = (await listFilesInDirRecrusively(endpoints))
-    // Filter out ts files as these are only d.ts files at runtime an we can not use them
-    .filter(x => x.endsWith('.js'))
+    // Use the match expression to check if the file is an endpoint the checking the final extention
+    .filter(x => {
+      return match ? (match as RegExp).test(x.split('/').pop() as string) : true
+        && x.endsWith('.js');
+    })
     .map(module => Promise.all([import(module), Promise.resolve(module)]));
 
     // If a preloadFunction throws the loading of the endpoint is canceled
