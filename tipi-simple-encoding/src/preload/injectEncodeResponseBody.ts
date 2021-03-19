@@ -1,17 +1,14 @@
 import { 
-  PreloadFunc, 
-  conditional,
-  mapProperty,
+  Preload
 } from 'tipi';
-
 
 /**
  * Uses JSON.stringify to encode responses to string if the ResponseBody is exported 
  * and of type Object
  */
-const injectEncodeResponseBody: PreloadFunc = conditional(
-  ({ ResponseBody }) => ResponseBody instanceof Object,
-  mapProperty('ResponseBody', 'encodeResponseBody', (_) => (responseBody: {}) => ({
+const injectEncodeResponseBody: Preload.PreloadFunc = Preload.conditional(
+  ({ ResponseBody }: any) => ResponseBody instanceof Object,
+  Preload.mapProperty('ResponseBody', 'encodeResponseBody', (_) => (responseBody: {}) => ({
     body: JSON.stringify(responseBody),
     headers: { 'content-type': 'application/json' },
   }))

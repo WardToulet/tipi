@@ -1,8 +1,5 @@
 import { 
-  PreloadFunc, 
-
-  mapProperty,
-  conditional,
+  Preload,
 
   mapHTTPError,
   RequestBodyDecoder,
@@ -14,7 +11,7 @@ import {
  * Injects a decodeRequestBody function if a RequestBody export exists 
  * and it implements AutoEncoder from simple-encoding.
  */
-const injectDecodeRequestBody: PreloadFunc = conditional(
+const injectDecodeRequestBody: Preload.PreloadFunc = Preload.conditional(
   ({ RequestBody }: any) => {
     // Check if the module exports a member RequestBody of type object 
     // that extends AutoEncoder from simple-encoding
@@ -23,7 +20,7 @@ const injectDecodeRequestBody: PreloadFunc = conditional(
 
   // Map the RequestBody property to a decodeRequestBody function to the 
   // RequestBody class
-  mapProperty(
+  Preload.mapProperty(
     'RequestBody', 
     'decodeRequestBody', 
     (RequestBody): RequestBodyDecoder<typeof RequestBody> => {

@@ -1,5 +1,5 @@
 {
-  "name": "tipi-simple-encoding",
+  "name": "@wardtoulet/tipi-simple-encoding",
   "version": "0.0.1",
   "author": "Ward Toulet <ward@toulet.net>",
   "main": "dist/index.js",

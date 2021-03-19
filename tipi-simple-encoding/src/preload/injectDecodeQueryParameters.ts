@@ -1,8 +1,5 @@
 import { 
-  PreloadFunc, 
-
-  mapProperty,
-  conditional,
+  Preload,
 
   QueryParameterDecoder,
   queryParameterDecoder,
@@ -19,7 +16,7 @@ import {
  * If there are non optional fields in the QueryParameters object the preload will fail
  * and the endpoint won't get mounted.
  */
-const injectDecodeQueryParameters: PreloadFunc = conditional(
+const injectDecodeQueryParameters: Preload.PreloadFunc = Preload.conditional(
   ({ QueryParameters }: any) => {
     // Check if the module exports a member QueryParameters of type object 
     // that extends AutoEncoder from simple-encoding
@@ -28,7 +25,7 @@ const injectDecodeQueryParameters: PreloadFunc = conditional(
 
   // Map the QueryParameters property to a decodeQueryParameters function to the 
   // QueryParameters class
-  mapProperty(
+  Preload.mapProperty(
     'QueryParameters', 
     'decodeQueryParameters', 
     (QueryParameters): QueryParameterDecoder<typeof QueryParameters> => {
@@ -37,7 +34,7 @@ const injectDecodeQueryParameters: PreloadFunc = conditional(
       const required = QueryParameters?.fields.filter(({ optional }) => !optional).map(({ field }) => field);
       if(required.length !== 0) {
         throw new PreloadError({ 
-          preloadName: 'wetu-simple-encoding/InjectDecodeQueryParameters',
+          preloadName: 'tipi-simple-encoding/InjectDecodeQueryParameters',
           message: `QueryParameters cannot include required field${ required.length > 1 ? 's' : ''} "${ required.join(', ')}"`,
         });
       }
