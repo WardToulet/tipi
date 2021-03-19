@@ -11,6 +11,7 @@ type RequestParams<ReqBody, URLParams, QueryParams> = {
   path: string,
   rawBody?: string,
   headers: IncomingHttpHeaders,
+  route: string,
 }
 
 export default class Request<ReqBody, URLParams, QueryParams, Context> {
@@ -27,6 +28,11 @@ export default class Request<ReqBody, URLParams, QueryParams, Context> {
   private rawBody?: string;
   readonly headers: IncomingHttpHeaders;
 
+  /**
+   * The route defenition matched by the router
+   */
+  readonly route: string;
+
   constructor({
     requestBodyDecoder,
     urlParameterDecoder,
@@ -34,6 +40,7 @@ export default class Request<ReqBody, URLParams, QueryParams, Context> {
     path,
     rawBody,
     headers,
+    route,
   }: RequestParams<ReqBody, URLParams, QueryParams>) {
     this._context = {} as Context;
     this.requestBodyDecoder = requestBodyDecoder;
@@ -42,6 +49,7 @@ export default class Request<ReqBody, URLParams, QueryParams, Context> {
     this.path = path;
     this.rawBody = rawBody;
     this.headers = headers;
+    this.route = route;
   }
 
   get body(): ReqBody {
@@ -67,7 +75,7 @@ export default class Request<ReqBody, URLParams, QueryParams, Context> {
           tag: this.path,
         });
       }
-      this._urlParams = this.urlParameterDecoder(this.path);
+      this._urlParams = this.urlParameterDecoder(this.path, this.route);
     }
     return this._urlParams;
   }

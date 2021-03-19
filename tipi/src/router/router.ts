@@ -17,7 +17,7 @@ export default class Router {
 
       // Get the pipeline from the routing tree
       // This throws an HTTPError if the path or method is not found
-      const pipeline = this.routingTree.getPipeline(req.url as string, req.method as HTTPMethod);
+      const { pipeline, route } = this.routingTree.getPipeline(req.url as string, req.method as HTTPMethod);
 
       // Collect the body data into the body variable
       req.on('data', chunk => body += chunk);
@@ -25,7 +25,12 @@ export default class Router {
       // Handle the request when it is fully recieved
       req.on('end', async () => {
         try {
-          const response = await pipeline.run(req.url as string, body, req.headers);
+          const response = await pipeline.run({
+            path: req.url as string,
+            rawBody: body, 
+            headers: req.headers,
+            route,
+          });
           // Set headers
           // TODO: replace string cast
           Object.entries(response.headers).forEach(([header, value]) => res.setHeader(header, value as string));

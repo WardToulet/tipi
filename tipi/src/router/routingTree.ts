@@ -60,12 +60,18 @@ export default class RoutingTree {
 
   /**
    * Try and get the pipeline for a route (path and method cobination)
-   * @returns Pipeline if a matching route could be found
+   * @returns Pipeline and the routet that got matched if a matching route could be found
    * @throws HttpError (status: 405) if the path exist but not for the method given
    * @throws HttpError (status: 404) if the path does not exists
    */
   // Throws HTTPErrors instead of returning undefined to allow the difference between 404 and 405
-  public getPipeline(path: string, method: HTTPMethod): Pipeline<any, any, any, any, any> {
+  public getPipeline(path: string, method: HTTPMethod): {
+    route: string,
+    pipeline: Pipeline<any, any, any, any, any>}
+  {
+    // The route that got matched
+    let route = '';
+
     const pathParts = path
       // Remove the query part
       .split('?')[0]
@@ -78,6 +84,12 @@ export default class RoutingTree {
 
     // Loop through the parts of the path checking the tree if they exist
     for(const part of pathParts) {
+      // Add the matched node to the route
+      route += node?.static?.[part] 
+        ? `/${part}`
+        : `/@${node?.dynamic?.variable}`;
+
+      // IF the partexist as a static child use that othrerwise asume it is a variable
       node = node.static?.[part] || node.dynamic?.children;
 
       // If the node is undefined the path is invalid and a 404 should be send to the user
@@ -88,7 +100,7 @@ export default class RoutingTree {
           message: 'Not found'
         });
       }
-    }
+   }
 
     // Check if the path has any leafs 
     // if not it is not a full path and should return 404
@@ -98,7 +110,11 @@ export default class RoutingTree {
 
     // Check if the requested method is supported on the path
     if(node.leafs[method]) {
-      return node.leafs[method];
+      // Return the pipeline and the route that was matched to get to it
+      return {
+        pipeline: node.leafs[method],
+        route
+      };
     } else {
       throw new HTTPError({ status: 405, message: `Method ${method} not allowed on '${path}'`});
     }

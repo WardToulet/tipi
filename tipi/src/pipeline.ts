@@ -55,10 +55,22 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, 
    * Run the middleware, handler and response encoder, the decoders for the requestBody,
    * queryParameters and URLParameters are ran lazaly the frist time they are requested.
    */
-  async run(path: string, rawBody: string, headers: IncomingHttpHeaders)
+  async run({
+    path,
+    rawBody,
+    headers,
+    route,
+  }: {
+    path: string, 
+    rawBody: string, 
+    headers: IncomingHttpHeaders
+    // The path defenition that was matched in th routingtree
+    route: string,
+  })
      : Promise<{ body: string, headers: OutgoingHttpHeaders}>
   {
     let request = new Request<ReqBody, URLParameters, QueryParameters, Context>({
+      route,
       path,
       rawBody,
       headers,
