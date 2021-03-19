@@ -11,6 +11,6 @@ code size.
 
 The routing library.
 
-### tipi-simple-encoding
+### tipi-simple-enicoding
 
-A bridge between wetu and simple encoding.
+A bridge between tipi and simple encoding.
