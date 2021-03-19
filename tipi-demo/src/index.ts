@@ -16,7 +16,8 @@ import {
       injectDecodeQueryParameters,
       injectDecodeRequestBody,
       injectEncodeResponseBody,
-    ]
+    ],
+    match: file => /^[a-z]*.js$/.test(file),
   });
 
   const server = http.createServer(router);
