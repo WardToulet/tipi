@@ -1,3 +1,4 @@
+import { AutoEncoder } from '@simonbackx/simple-encoding';
 import { 
   Preload,
 
@@ -15,7 +16,7 @@ const injectDecodeRequestBody: Preload.PreloadFunc = Preload.conditional(
   ({ RequestBody }: any) => {
     // Check if the module exports a member RequestBody of type object 
     // that extends AutoEncoder from simple-encoding
-    return RequestBody?.__proto__.name === 'AutoEncoder';
+    return RequestBody?.prototype instanceof AutoEncoder;
   },
 
   // Map the RequestBody property to a decodeRequestBody function to the 

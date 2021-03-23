@@ -1,3 +1,4 @@
+import { AutoEncoder } from '@simonbackx/simple-encoding';
 import { 
   Preload,
   QueryParameterDecoder,
@@ -17,7 +18,7 @@ const injectDecodeQueryParameters: Preload.PreloadFunc = Preload.conditional(
   ({ QueryParameters }: any) => {
     // Check if the module exports a member QueryParameters of type object 
     // that extends AutoEncoder from simple-encoding
-    return QueryParameters?.__proto__.name === 'AutoEncoder';
+    return QueryParameters?.prototype instanceof AutoEncoder;
   },
 
   // Map the QueryParameters property to a decodeQueryParameters function to the 

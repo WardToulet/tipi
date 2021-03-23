@@ -1,3 +1,4 @@
+import { AutoEncoder } from '@simonbackx/simple-encoding';
 import { 
   Preload, 
 
@@ -22,7 +23,7 @@ const injectDecodeURLParameters: Preload.PreloadFunc = Preload.conditional(
   ({ URLParameters }: any) => {
     // Check if the module exports a member URLParameters of type object 
     // that extends AutoEncoder from simple-encoding
-    return URLParameters?.__proto__.name === 'AutoEncoder';
+    return URLParameters?.prototype instanceof AutoEncoder;
   },
 
   // Map the URLParameters property to a decodeURLParameters function to the 
