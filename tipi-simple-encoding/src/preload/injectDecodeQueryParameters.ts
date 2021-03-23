@@ -1,13 +1,10 @@
 import { 
   Preload,
-
   QueryParameterDecoder,
-  queryParameterDecoder,
-
-  mapHTTPError,
   PreloadError,
-} from 'tipi';
-
+  queryParameterDecoder,
+  mapHTTPError,
+} from '@wardtoulet/tipi';
 
 /**
  * Injects a decodeQueryParameters function if a QueryParameters export exists 

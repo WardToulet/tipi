@@ -1,4 +1,4 @@
-import { HTTPError, MiddlewareFunc } from 'tipi';
+import { HTTPError, MiddlewareFunc } from '@wardtoulet/tipi';
 
 /**
  * Use Basic Auth and adds the username of the user to the context, 

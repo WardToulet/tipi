@@ -1,6 +1,6 @@
 import { StringDecoder } from '@simonbackx/simple-encoding';
 import { AutoEncoder, field } from '@simonbackx/simple-encoding';
-import { HandleFunc } from 'tipi';
+import { HandleFunc } from '@wardtoulet/tipi';
 
 export const path = [ '/aap/@name', '/@name/monkey' ];
 export const method = 'GET';

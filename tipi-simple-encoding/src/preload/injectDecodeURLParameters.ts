@@ -6,7 +6,7 @@ import {
 
   mapHTTPError,
   PreloadError,
-} from 'tipi';
+} from '@wardtoulet/tipi';
 
 
 /**

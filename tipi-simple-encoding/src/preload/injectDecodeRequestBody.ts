@@ -4,7 +4,7 @@ import {
   mapHTTPError,
   RequestBodyDecoder,
   HTTPError,
-} from 'tipi';
+} from '@wardtoulet/tipi';
 
 
 /**

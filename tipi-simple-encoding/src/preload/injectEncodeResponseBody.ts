@@ -1,6 +1,6 @@
 import { 
   Preload
-} from 'tipi';
+} from '@wardtoulet/tipi';
 
 /**
  * Uses JSON.stringify to encode responses to string if the ResponseBody is exported 

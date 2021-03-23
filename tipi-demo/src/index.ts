@@ -1,11 +1,11 @@
 import http from 'http';
-import tipi from 'tipi';
+import tipi from '@wardtoulet/tipi';
 import { 
   injectDecodeURLParameters, 
   injectDecodeQueryParameters, 
   injectDecodeRequestBody, 
   injectEncodeResponseBody 
-} from 'tipi-simple-encoding';
+} from '@wardtoulet/tipi-simple-encoding';
 
 (async () => {
   const router = await tipi({

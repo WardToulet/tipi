@@ -1,4 +1,4 @@
-import { HandleFunc } from 'tipi';
+import { HandleFunc } from '@wardtoulet/tipi';
 
 import authenticate from '../middleware/authenticate';
 

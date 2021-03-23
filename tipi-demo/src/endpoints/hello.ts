@@ -1,4 +1,4 @@
-import { HandleFunc } from "tipi";
+import { HandleFunc } from "@wardtoulet/tipi";
 
 export const path = '/hello/@name';
 export const method = 'GET';
