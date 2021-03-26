@@ -1,4 +1,4 @@
-import Log from "../log/log";
+import { PipelineError } from '../errors';
 import preCheck from "./preCheck";
 
 /**
@@ -31,10 +31,10 @@ export default function postCheck(endpoint: any) {
   preCheck(endpoint);
 
   const orphans = Object.keys(endpoint).filter(ex => !whitelist.includes(ex));
+
   if(orphans.length !== 0) {
-    throw new Log({
-      level: 'ERROR',
-      tag: 'pipeline',
+    throw new PipelineError({
+      endpoint: endpoint.name,
       message: `Found orphan exports "${orphans.join(', ')}", these should be used by by preloadFunctions or removed."`
     });
   }

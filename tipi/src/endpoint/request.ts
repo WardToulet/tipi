@@ -2,7 +2,6 @@ import ReqeuestBodyDecoder from './requestBodyDecoder';
 import URLParameterDecoder from './urlParameterDecoder';
 import QueryParameterDecoder from './queryParameterDecoder';
 import { IncomingHttpHeaders } from 'http';
-import Log from '../log/log';
 
 type RequestParams<ReqBody, URLParams, QueryParams> = {
   requestBodyDecoder?: ReqeuestBodyDecoder<ReqBody>,
@@ -55,11 +54,11 @@ export default class Request<ReqBody, URLParams, QueryParams, Context> {
   get body(): ReqBody {
     if(!this._body) {
       if(!this.requestBodyDecoder) {
-        throw  new Log({
+        throw new Error(JSON.stringify({
           level: 'ERROR',
           message: 'Error: tried to acces body no decoder defined',
           tag: this.path,
-        }) 
+        }));
       }
       this._body = this.rawBody ? this.requestBodyDecoder(this.rawBody, this.headers['content-type'] as string) : undefined;
     } 
@@ -69,11 +68,11 @@ export default class Request<ReqBody, URLParams, QueryParams, Context> {
   get urlParameters(): URLParams {
     if(!this._urlParams) {
       if(!this.urlParameterDecoder) {
-        throw new Log({
+        throw new Error(JSON.stringify({
           level: 'ERROR',
           message: 'Error: tried to access url parameters no decoder defined',
           tag: this.path,
-        });
+        }));
       }
       this._urlParams = this.urlParameterDecoder(this.path, this.route);
     }
@@ -83,11 +82,11 @@ export default class Request<ReqBody, URLParams, QueryParams, Context> {
   get queryParameters(): QueryParams {
     if(!this._queryParams) {
       if(!this.queryParameterDecoder) {
-        throw new Log({
+        throw new Error(JSON.stringify({
           level: 'ERROR',
           message: 'Error: tried to access query parameters no decoder defined',
           tag: this.path,
-        });
+        }));
 
       }
       this._queryParams = this.queryParameterDecoder(this.path);
@@ -99,11 +98,11 @@ export default class Request<ReqBody, URLParams, QueryParams, Context> {
     return new Proxy(this._context as Object, {
       get(target, prop) {
         if(target[String(prop)] === undefined) {
-          throw new Log({
+          throw new Error(JSON.stringify({
             level: 'ERROR',
             message: `Error: tried to access context property "${String(prop)}", which is undefined`,
             tag: this.path,
-          });
+          }));
         } else {
           return target[String(prop)];
         }

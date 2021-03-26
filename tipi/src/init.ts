@@ -3,22 +3,32 @@ import { PreloadFunc } from './preload';
 import { Router } from './router';
 import { listFilesInDirRecrusively } from './util';
 import { HTTPMethod } from './httpHelpers';
+
 import { createPipeline } from './pipeline';
+
 import preCheck from './endpoint/preCheck';
-import { postCheck } from '.';
-import { Logger, simpleLogger, Log } from './log';
+import postCheck from './endpoint/postCheck';
 
 type InitProps = {
+  /**
+   * Path to the folder contining the endpoints to load.
+   */
   endpoints: string,
+
   /**
    * Takes the filename of a file inside the `endpoints` directory, 
    * if it returns false this file will be ignored by tipi
    *
-   * Note: all valid endpoints still are .js files
+   * Note: all valid endpoints must be .js files, this is checked before 
+   *       the match function is ran
    */
   match?: (filename: string) => boolean,
+
+  /**
+   * List of preload functions that are ran before an endpoint is moutned in the 
+   * routing tree
+   */
   preload?: PreloadFunc[]
-  logger?: Logger,
 }
 
 /**
@@ -27,7 +37,6 @@ type InitProps = {
 export default async function init({ 
   endpoints, 
   preload = [],
-  logger = simpleLogger,
   match,
 }: InitProps):
   Promise<(req: http.IncomingMessage, res: http.ServerResponse) => void>
@@ -49,31 +58,32 @@ export default async function init({
     // If a preloadFunction throws the loading of the endpoint is canceled
     for(let [ module, filename ] of await Promise.all(modules)) {
       try {
-        // Do prechecks
+        // If the module has no `name` export derive this from the filename
+        if(!module['name']) {
+          module.name = filename.split('/').pop()?.split('.')[0];
+        }
+
+        // Do prechecks: check if the module exports the minimal exports
+        // method, path and handle
         preCheck(module);
 
+        // Do the precheck to modify the endpoints
         for(const preloadFunction of preload) {
           module = preloadFunction(module); 
         }
 
-        // Do post checks
+        // Do post checks: to check how if all the required exports are present
+        // and if no nonstandard exports are still present as these may sugest
+        // that some preload functionality was exptecte when it didn't run
         postCheck(module);
 
-        router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(module, filename));
+        // Add the endpoint to the router
+        router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(module));
 
-        logger(new Log({
-          level: 'LOG',
-          message: `Mounted at ${(Array.isArray(module.path) ? module.path : [ module.path ]).map((x: string) => `"${x}"`).join(', ')}`,
-          tag: module.name || filename.split('/').pop(),
-        }));
+        // TODO: propper logging
+        console.log(`Mounted at ${(Array.isArray(module.path) ? module.path : [ module.path ]).map((x: string) => `"${x}"`).join(', ')}`);
       } catch(error) {
-        if(error instanceof Log) {
-          // Add the name of the endpoint
-          error.addTag(module.name || filename.split('/').pop())
-          logger(error);
-        } else {
           console.error(error);
-        }
       }
     }
 

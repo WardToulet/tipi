@@ -100,9 +100,10 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, 
 }
 
 
-export function createPipeline(module: any, filename: string): Pipeline<any, any, any, any, any> {
+export function createPipeline(module: any): Pipeline<any, any, any, any, any> {
   // If a name is defined use the defined name otherwise use the filename
-  const name = module.name || filename?.split('/').pop();
+  // this is set in the init function
+  const name = module.name;
 
   return new Pipeline({
     name,

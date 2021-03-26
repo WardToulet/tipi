@@ -47,14 +47,16 @@ export const mapProperty = (
   // If the from member does not exist just return the module
   // we don't throw here to allow the use of this function without alway needing
   // to wrap it in a conditional
-  if(!module[from])
+  if (!module[from]) {
     return module;
+  }
  
   // FIXME: use a better error type to propageate in which preload step the error occured 
   // The to property is defined by the user or another preload function, 
   // the mapping is canceled
-  if(module[to])
+  if (module[to]) {
     throw 'Trying to map to existing property';
+  }
 
   // FIXME: use a better error type to propageate in which preload step the error occured 
   // Mapping to the middelware property is not allowed
@@ -112,21 +114,3 @@ export const addMiddleware = (
 
   return module;  
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

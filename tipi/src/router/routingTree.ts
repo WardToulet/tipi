@@ -1,6 +1,6 @@
 import Pipeline from '../pipeline';
 import { HTTPMethod } from '../httpHelpers';
-import {HTTPError} from '..';
+import { HTTPError } from '../errors';
 
 export default class RoutingTree {
   private root: Node;

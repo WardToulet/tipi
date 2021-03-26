@@ -57,24 +57,6 @@ export default class Router {
 }
 
 function handleHTTPError(res: http.ServerResponse, error: HTTPError) {
-  if(error.name === 'HTTPError') {
-  // If the error is HTTPError it wil be send as a response to the client
-   
-    // Check if the error message is json
-    if(error.isObject) {
-      res.setHeader('Content-Type', 'application/json');
-    }
-
-    // Send the error to the client
-    res.statusCode = error.status;
-    res.end(error.message);
-  } else {
-  // If the error is not HTTPError it will be loged on the server, 
-  // and an internal server error will be send to the client
-    
-    // TODO: reference the endpoint that throwed the error
-    console.error(`[router]: X threw a non http error ${error.message || error }`);
-    res.statusCode = 500;
-    res.end('Internal server error');
-  }
+  res.statusCode = error.status || 500;
+  res.end(error.message || '');
 }
