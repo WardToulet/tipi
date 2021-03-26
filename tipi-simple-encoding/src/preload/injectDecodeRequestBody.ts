@@ -8,6 +8,8 @@ import {
 } from '@wardtoulet/tipi';
 
 
+// FIXME: handle empty body better, currently it just says undfined 
+
 /**
  * Injects a decodeRequestBody function if a RequestBody export exists 
  * and it implements AutoEncoder from simple-encoding.
