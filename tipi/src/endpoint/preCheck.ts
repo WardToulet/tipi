@@ -1,12 +1,14 @@
 import { isHttpMethod } from "../httpHelpers";
 import {} from 'util';
-import {extractPathVariableNames, PipelineError} from "..";
+import { PipelineError } from "../errors";
+import { extractPathVariableNames } from "../util";
 
-/**
- * Checks the module before being ran through the preloadFunctions
- */
-export default function preCheck({ name, handle, path, method }: any) {
-  console.log('Precheck name: ', name);
+export default function preCheck({
+  handle,
+  method,
+  name,
+  path,
+}: any) {
   // Handle checks
   if(!handle) {
     throw new PipelineError({
