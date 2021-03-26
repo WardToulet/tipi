@@ -10,6 +10,7 @@ const authenticate: MiddlewareFunc<any, any, any, { username: string }> = async 
     req.context.username = username;
   } else {
     throw new HTTPError({
+      message: 'Not authenticated',
       status: 401,
     });
   }
