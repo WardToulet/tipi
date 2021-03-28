@@ -18,6 +18,10 @@ export async function listFilesInDirRecrusively(
   return results;
 }
 
+/**
+ * Splits a string by `/` and returns the parts starting with `@` 
+ * with the `@` prefix removed
+ */
 export function extractPathVariableNames(pathDef: string | string[]): string[] {
   // If the pathdef is multiple paths (array) we use the first of these (index 0)
   // we known the variables are the same in each step because this is garanteed before

@@ -15,13 +15,12 @@ interface TipiErrorProps {
 /**
  * Base class for other error classes
  */
-abstract class TipiError {
+abstract class TipiError extends Error {
   readonly endpoint?: string; 
-  readonly message: string;
 
   constructor({ endpoint, message }: TipiErrorProps) {
+    super(message);
     this.endpoint = endpoint;
-    this.message = message;
   }
 }
 
