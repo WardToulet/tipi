@@ -3,7 +3,8 @@
     "workspaces": [
         "tipi",
         "tipi-demo",
-        "tipi-simple-encoding"
+        "tipi-simple-encoding",
+        "tipi-morph"
     ],
     "scripts": {}
 }
