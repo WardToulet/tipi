@@ -16,6 +16,9 @@ type Context = {
   username: string;
 }
 
-export const handle: HandleFunc<undefined, undefined, undefined, Context, string> = async (req) => {
+export const handle: HandleFunc<
+ { context: Context },
+ string
+ > = async (req) => {
   return `Helo ${req.context.username}`;
 }

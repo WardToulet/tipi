@@ -17,6 +17,17 @@ import Request from './request';
  * }
  * ```
  */
-export default interface HandleFunc<ReqBody, URLParameters, QueryParameters, Context, ResBody> {
-  (req: Request<ReqBody, URLParameters, QueryParameters, Context>): Promise<ResBody>
+
+// export default interface HandleFunc<ReqBody, URLParameters, QueryParameters, Context, ResBody> {
+//   (req: Request<ReqBody, URLParameters, QueryParameters, Context>): Promise<ResBody>
+// }
+export default interface HandleFunc<RequestTypes extends BasicRequest, ResponseType> {
+  (req: Request<RequestTypes>): Promise<ResponseType>
+}
+
+export type BasicRequest = {
+  body?: any,
+  urlParameters?: { [key: string ]: any },
+  queryParameters?: { [key: string]: any },
+  context?: { [key: string]: any },
 }

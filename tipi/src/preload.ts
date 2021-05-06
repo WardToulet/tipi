@@ -84,7 +84,7 @@ export const mapProperty = (
  */
 export const mapPropertyToMiddleware = (
   from: string, 
-  map: (from: any) => MiddlewareFunc<any, any, any, any>
+  map: (from: any) => MiddlewareFunc<any>
 ): PreloadFunc => (module: {}) => {
   // If the from member does not exist just return the module
   // we don't throw here to allow the use of this function without alway needing
@@ -104,13 +104,13 @@ export const mapPropertyToMiddleware = (
  * Adds a middlewaer function to the module
  */
 export const addMiddleware = (
-  middleware: MiddlewareFunc<any, any, any, any>
+  middleware: MiddlewareFunc<any>
 ): PreloadFunc => (module: {}) => {
   // Init middleware if needed
   if(!module['middleware'])
     module['middleware'] = [];
 
-  (module['middleware'] as MiddlewareFunc<any, any, any, any>[]).push(middleware);
+  (module['middleware'] as MiddlewareFunc<any>[]).push(middleware);
 
   return module;  
 }

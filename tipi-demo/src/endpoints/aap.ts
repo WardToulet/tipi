@@ -11,6 +11,9 @@ export class URLParameters extends AutoEncoder {
   name: string;
 }
 
-export const handle: HandleFunc<undefined, URLParameters, undefined, undefined, string> = async (req) => {
+export const handle: HandleFunc<
+  { urlParameters: URLParameters },
+  string
+> = async (req) => {
   return `Hello ${req.urlParameters.name}`;
 }

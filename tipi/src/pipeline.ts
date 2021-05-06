@@ -10,28 +10,30 @@ import {
   Request,
 } from './endpoint';
 
+// TODO: move this outof handle
+import { BasicRequest } from './endpoint/handle';
 
-type PipelineArgs<ReqBody, URLParameters, QueryParameters, Context, ResBody> = {
+type PipelineArgs<RequestTypes extends BasicRequest, ResponseBody> = {
     name: string,
-    requestBodyDecoder?: RequestBodyDecoder<ReqBody>,
-    urlParameterDecoder?: URLParameterDecoder<URLParameters>,
-    queryParameterDecoder?: QueryParameterDecoder<QueryParameters>,
-    handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, Context, ResBody>,
-    middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters, Context>[],
-    resBodyEncoder?: ResponseBodyEncoder<ResBody>,
+    requestBodyDecoder?: RequestBodyDecoder<RequestTypes['body']>,
+    urlParameterDecoder?: URLParameterDecoder<RequestTypes['urlParameters']>,
+    queryParameterDecoder?: QueryParameterDecoder<RequestTypes['queryParameters']>,
+    handleFunc: HandleFunc<RequestTypes, ResponseBody>,
+    middleware?: MiddlewareFunc<RequestTypes>[],
+    resBodyEncoder?: ResponseBodyEncoder<ResponseBody>,
 }
 
 /**
  * Pipeline encapsulates all the logic for handeling a request of an endpoint
  */
-export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, ResBody> {
+export default class Pipeline<RequestTypes extends BasicRequest, ResponseBody> {
   readonly name: string;
-  readonly requestBodyDecoder?: RequestBodyDecoder<ReqBody>;
-  readonly urlParameterDecoder?: URLParameterDecoder<URLParameters>;
-  readonly queryParameterDecoder?: QueryParameterDecoder<QueryParameters>;
-  readonly middleware?: MiddlewareFunc<ReqBody, URLParameters, QueryParameters, Context>[];
-  readonly handleFunc: HandleFunc<ReqBody, URLParameters, QueryParameters, Context, ResBody>;
-  readonly responseBodyEncoder?: ResponseBodyEncoder<ResBody>; 
+  readonly requestBodyDecoder?: RequestBodyDecoder<RequestTypes['body']> 
+  readonly urlParameterDecoder?: URLParameterDecoder<RequestTypes['urlParameters']>;
+  readonly queryParameterDecoder?: QueryParameterDecoder<RequestTypes['queryParameters']>;
+  readonly middleware?: MiddlewareFunc<RequestTypes>[];
+  readonly handleFunc: HandleFunc<RequestTypes, ResponseBody>;
+  readonly responseBodyEncoder?: ResponseBodyEncoder<ResponseBody>; 
 
   constructor({
     requestBodyDecoder,
@@ -41,7 +43,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, 
     resBodyEncoder,
     middleware,
     name,
-  }: PipelineArgs<ReqBody, URLParameters, QueryParameters, Context,ResBody>) {
+  }: PipelineArgs<RequestTypes, ResponseBody>) {
     this.requestBodyDecoder = requestBodyDecoder;
     this.urlParameterDecoder = urlParameterDecoder;
     this.queryParameterDecoder = queryParameterDecoder;
@@ -69,7 +71,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, 
   })
      : Promise<{ body: string, headers: OutgoingHttpHeaders}>
   {
-    let request = new Request<ReqBody, URLParameters, QueryParameters, Context>({
+    let request = new Request<RequestTypes>({
       route,
       path,
       rawBody,
@@ -86,7 +88,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, 
     }
 
     // Run the handler function
-    const result: ResBody = await this.handleFunc(request);
+    const result: ResponseBody = await this.handleFunc(request);
 
     // If there is not responseBodyEncoder specified, 
     // the body will be encoded using the toString method
@@ -100,7 +102,7 @@ export default class Pipeline<ReqBody, URLParameters, QueryParameters, Context, 
 }
 
 
-export function createPipeline(module: any): Pipeline<any, any, any, any, any> {
+export function createPipeline(module: any): Pipeline<any, any> {
   // If a name is defined use the defined name otherwise use the filename
   // this is set in the init function
   const name = module.name;

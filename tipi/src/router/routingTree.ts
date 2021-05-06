@@ -9,7 +9,7 @@ export default class RoutingTree {
     this.root = {};
   }
 
-  public addRoute(path: string, method: HTTPMethod, pipeline: Pipeline<any, any, any, any, any>) {
+  public addRoute(path: string, method: HTTPMethod, pipeline: Pipeline<any, any>) {
     const paths = Array.isArray(path) ? path : [ path ];
 
     for(const path of paths) {
@@ -67,7 +67,7 @@ export default class RoutingTree {
   // Throws HTTPErrors instead of returning undefined to allow the difference between 404 and 405
   public getPipeline(path: string, method: HTTPMethod): {
     route: string,
-    pipeline: Pipeline<any, any, any, any, any>}
+    pipeline: Pipeline<any, any>}
   {
     // The route that got matched
     let route = '';
@@ -128,7 +128,7 @@ type Node = {
     children: Node,
   },
 
-  leafs?: { [key: string]: Pipeline<any, any, any, any, any> },
+  leafs?: { [key: string]: Pipeline<any, any> },
 }
 
 class InconistentPathVariableError extends Error {

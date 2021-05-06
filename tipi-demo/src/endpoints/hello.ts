@@ -34,10 +34,10 @@ export const decodeQueryParameters = (requestPath: string) => {
 }
 
 export const handle: HandleFunc<
-  undefined, 
-  URLParameters, 
-  QueryParameters, 
-  undefined,
+  {
+    urlParameters: URLParameters, 
+    queryParameters: QueryParameters, 
+  },
   string
 > = async (req) => {
   return `Hello ${req.urlParameters.name} from planet ${req.queryParameters.planet ?? 'earth'} on host ${req.headers.host}`;

@@ -47,7 +47,7 @@ export default class Router {
     }
   }
 
-  public addEndpoint(path: string, method: HTTPMethod, pipeline: Pipeline<any, any, any, any, any>) {
+  public addEndpoint(path: string, method: HTTPMethod, pipeline: Pipeline<any, any>) {
     try {
       this.routingTree.addRoute(path, method, pipeline);
     } catch(err) {
