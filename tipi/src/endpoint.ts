@@ -51,6 +51,24 @@ export interface Ctx<T extends { [key: string]: any }> extends Request {
   ctx: T,
 }
 
+export interface VariablesExtractor {
+  (path: string, matchedOn: string): { [key: string]: number | string }
+}
+
+/**
+ * Simple implementation of a @link{VariablesExtractor} whitch **doesn't** check the type'
+ *
+ * @param {string} path
+ * @param {string} matchedOn
+ */
+export const simpleVariablesExtractor: VariablesExtractor = (path: string, matchedOn: string) => {
+  const pathParts = path.split('/');
+  return Object.fromEntries(
+    Object.entries(matchedOn.split('/'))
+      .filter(([ _, part ]) => part.startsWith('@'))
+      .map(([ idx, part ]) => [ part.slice(1), pathParts[idx]] )
+  );
+}
 
 /**
  * A tipi endpoint 
@@ -92,8 +110,7 @@ export interface Endpoint<Req extends Request, Res> {
   /**
    * Function that takes the variable out of the path and prouces a req.variables
    */
-  // FIXME: use proper type
-  variablesExtractor?: Function,
+  variablesExtractor?: VariablesExtractor,
 
   /**
    * Function that thakes the query part of the uri and produces a req.query
@@ -106,4 +123,4 @@ export interface Endpoint<Req extends Request, Res> {
    */
   // FIXME: use proper type
   bodyDecoder?: Function,
-} 
+}

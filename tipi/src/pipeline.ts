@@ -31,7 +31,6 @@ function createProxy<Req extends Request, Res>(endpoint: Endpoint<Req, Res>, { h
     headers,
     body: undefined, 
     query: undefined,
-    variables: undefined,
     context: {},
   }, { 
     get: (obj, prop) => {
@@ -59,13 +58,16 @@ function createProxy<Req extends Request, Res>(endpoint: Endpoint<Req, Res>, { h
         }
 
         case 'variables': {
+          // @ts-ignore
           if(!obj.variables) {
             if(!endpoint.variablesExtractor) {
-              throw 'No ParamsExtractor, this can be infered by tipi-transform';
+              throw 'No VariablesExtractor, this can be infered by tipi-transform';
             } else {
+              // @ts-ignore
               obj.variables = endpoint.variablesExtractor(props.uri, props.matchedOn);
             }
           }
+          // @ts-ignore
           return obj.variables;
         }
 

@@ -1,4 +1,4 @@
-import { Endpoint, Variables } from '@wardtoulet/tipi';
+import { Endpoint, Variables, simpleVariablesExtractor } from '@wardtoulet/tipi';
  
 const endpoint: Endpoint<
   Variables<{ name: string }>,
@@ -11,5 +11,6 @@ const endpoint: Endpoint<
 
 endpoint.method = 'GET';
 endpoint.path = '/hello/@name';
+endpoint.variablesExtractor = simpleVariablesExtractor;
 
 export default endpoint;
