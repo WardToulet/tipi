@@ -1,23 +1,10 @@
 import http from 'http';
 import tipi from '@wardtoulet/tipi';
-import { 
-  injectDecodeURLParameters, 
-  injectDecodeQueryParameters, 
-  injectDecodeRequestBody, 
-  injectEncodeResponseBody 
-} from '@wardtoulet/tipi-simple-encoding';
 
 (async () => {
   const router = await tipi({
     endpoints: `${__dirname}/endpoints`,
-    preload: [ 
-      // Inject simple-encoding encoders and decoders
-      injectDecodeURLParameters,
-      injectDecodeQueryParameters,
-      injectDecodeRequestBody,
-      injectEncodeResponseBody,
-    ],
-    match: file => /^[a-z]*.js$/.test(file),
+    match: (file: string) => /^[a-z]*.endpoint.js$/.test(file),
   });
 
   const server = http.createServer(router);

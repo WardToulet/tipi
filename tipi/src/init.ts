@@ -1,14 +1,13 @@
 import http from 'http';
-import { PreloadFunc } from './preload';
-import { Router } from './router';
+import Pipeline from './pipeline';
+import Router from './router';
+
 import { listFilesInDirRecrusively } from './util';
-import { HTTPMethod } from './httpHelpers';
 
-import { createPipeline } from './pipeline';
-
-import preCheck from './endpoint/preCheck';
-import postCheck from './endpoint/postCheck';
-
+// TODO: add an option to read the endpoint directory and match 
+// from tsconfig, since it must be defined there to allow passing
+// options to the custom transformer, this will alow for this to be
+// only declared in one place
 type InitProps = {
   /**
    * Path to the folder contining the endpoints to load.
@@ -23,12 +22,6 @@ type InitProps = {
    *       the match function is ran
    */
   match?: (filename: string) => boolean,
-
-  /**
-   * List of preload functions that are ran before an endpoint is moutned in the 
-   * routing tree
-   */
-  preload?: PreloadFunc[]
 }
 
 /**
@@ -36,7 +29,6 @@ type InitProps = {
  */
 export default async function init({ 
   endpoints, 
-  preload = [],
   match,
 }: InitProps):
   Promise<(req: http.IncomingMessage, res: http.ServerResponse) => void>
@@ -47,45 +39,22 @@ export default async function init({
   const isModule = match || (() => true);
 
   const modules = (await listFilesInDirRecrusively(endpoints))
-    // Check if the file is a .js file
+    // Check if the file is a .js file, this is not .ts since we are loading modules 
+    // at runtime
     .filter(x => x.endsWith('.js'))
-    // Use the provided match method to check if the file is an endpoint
+    // Use the provided match method to check if the file is an endpoint, this is
+    // to allow the users to have none endpoint files in the endopoint directory
+    // (e.g. test files)
     .filter(x => isModule(x.split('/').pop() as string))
-    // Load the module dynamically because this returns a promise 
-    // we wrap the loaded module and the path in another promise
+    // Load the module dynamically, this returns a promise 
+    // so we wrap the loaded module and the path in another promise that and wait
+    // for everything to resolve
     .map(module => Promise.all([import(module), Promise.resolve(module)]));
 
-    // If a preloadFunction throws the loading of the endpoint is canceled
-    for(let [ module, filename ] of await Promise.all(modules)) {
-      try {
-        // If the module has no `name` export derive this from the filename
-        if(!module['name']) {
-          module.name = filename.split('/').pop()?.split('.')[0];
-        }
-
-        // Do prechecks: check if the module exports the minimal exports
-        // method, path and handle
-        preCheck(module);
-
-        // Do the precheck to modify the endpoints
-        for(const preloadFunction of preload) {
-          module = preloadFunction(module); 
-        }
-
-        // Do post checks: to check how if all the required exports are present
-        // and if no nonstandard exports are still present as these may sugest
-        // that some preload functionality was exptecte when it didn't run
-        postCheck(module);
-
-        // Add the endpoint to the router
-        router.addEndpoint(module.path as string, module.method as HTTPMethod, createPipeline(module));
-
-        // TODO: propper logging
-        console.log(`Mounted at ${(Array.isArray(module.path) ? module.path : [ module.path ]).map((x: string) => `"${x}"`).join(', ')}`);
-      } catch(error) {
-          console.error(error);
-      }
-    }
+    // TODO: load the module
+    (await Promise.all(modules)).forEach(([ module ]) => {
+        router.mount(new Pipeline(module.default));
+    });
 
   return router.handler.bind(router);
 }

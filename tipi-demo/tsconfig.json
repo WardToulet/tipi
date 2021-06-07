@@ -19,6 +19,16 @@
         "types": [
             "node",
             "jest"
+        ],
+        "baseUrl": "./src",
+        "plugins": [
+            {
+                "transform": "@wardtoulet/tipi/src/transform.ts",
+                "type": "program",
+                "endpoints": {
+                    "dir": "./endpoints",
+                }
+            }
         ]
     },
     "include": [
@@ -26,5 +36,5 @@
     ],
     "exclude": [
         "node_modules"
-    ]
+    ],
 }

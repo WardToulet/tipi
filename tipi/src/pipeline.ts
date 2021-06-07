@@ -1,119 +1,109 @@
-import {IncomingHttpHeaders, OutgoingHttpHeaders} from 'http';
+import { Endpoint, Request } from "./endpoint";
+import { IncomingHttpHeaders } from 'http2';
 
-import {
-  RequestBodyDecoder,
-  URLParameterDecoder,
-  QueryParameterDecoder,
-  HandleFunc,
-  MiddlewareFunc,
-  ResponseBodyEncoder,
-  Request,
-} from './endpoint';
-
-// TODO: move this outof handle
-import { BasicRequest } from './endpoint/handle';
-
-type PipelineArgs<RequestTypes extends BasicRequest, ResponseBody> = {
-    name: string,
-    requestBodyDecoder?: RequestBodyDecoder<RequestTypes['body']>,
-    urlParameterDecoder?: URLParameterDecoder<RequestTypes['urlParameters']>,
-    queryParameterDecoder?: QueryParameterDecoder<RequestTypes['queryParameters']>,
-    handleFunc: HandleFunc<RequestTypes, ResponseBody>,
-    middleware?: MiddlewareFunc<RequestTypes>[],
-    resBodyEncoder?: ResponseBodyEncoder<ResponseBody>,
-}
-
-/**
- * Pipeline encapsulates all the logic for handeling a request of an endpoint
- */
-export default class Pipeline<RequestTypes extends BasicRequest, ResponseBody> {
-  readonly name: string;
-  readonly requestBodyDecoder?: RequestBodyDecoder<RequestTypes['body']> 
-  readonly urlParameterDecoder?: URLParameterDecoder<RequestTypes['urlParameters']>;
-  readonly queryParameterDecoder?: QueryParameterDecoder<RequestTypes['queryParameters']>;
-  readonly middleware?: MiddlewareFunc<RequestTypes>[];
-  readonly handleFunc: HandleFunc<RequestTypes, ResponseBody>;
-  readonly responseBodyEncoder?: ResponseBodyEncoder<ResponseBody>; 
-
-  constructor({
-    requestBodyDecoder,
-    urlParameterDecoder,
-    queryParameterDecoder,
-    handleFunc,
-    resBodyEncoder,
-    middleware,
-    name,
-  }: PipelineArgs<RequestTypes, ResponseBody>) {
-    this.requestBodyDecoder = requestBodyDecoder;
-    this.urlParameterDecoder = urlParameterDecoder;
-    this.queryParameterDecoder = queryParameterDecoder;
-    this.handleFunc = handleFunc;
-    this.responseBodyEncoder = resBodyEncoder;
-    this.middleware = middleware;
-    this.name = name;
-  }
-  
+interface RunProps {
   /**
-   * Run the middleware, handler and response encoder, the decoders for the requestBody,
-   * queryParameters and URLParameters are ran lazaly the frist time they are requested.
+   * The uri that was used by the user to reach the endpoint
    */
-  async run({
-    path,
-    rawBody,
-    headers,
-    route,
-  }: {
-    path: string, 
-    rawBody: string, 
-    headers: IncomingHttpHeaders
-    // The path defenition that was matched in th routingtree
-    route: string,
-  })
-     : Promise<{ body: string, headers: OutgoingHttpHeaders}>
-  {
-    let request = new Request<RequestTypes>({
-      route,
-      path,
-      rawBody,
-      headers,
-      requestBodyDecoder: this.requestBodyDecoder,
-      urlParameterDecoder: this.urlParameterDecoder,
-      queryParameterDecoder: this.queryParameterDecoder,
-    });
+  uri: string,
 
-    // Run the middleware functions
-    for(const middleware of this.middleware || [] ) {
-      // Await on each middleware function because it must run in order
-      request = await middleware(request);
-    }
+  /**
+   * The path that was matched by the router, (including wildcards)
+   *
+   * This will be used by the variables- & queryExtractors
+   */
+  matchedOn: string,
 
-    // Run the handler function
-    const result: ResponseBody = await this.handleFunc(request);
+  /**
+   * The headers received by the http server
+   */
+  headers: IncomingHttpHeaders,
 
-    // If there is not responseBodyEncoder specified, 
-    // the body will be encoded using the toString method
-    if(this.responseBodyEncoder) {
-      const { headers, body } = this.responseBodyEncoder(result);
-      return { body, headers: headers || {} }; } 
-    else {
-      return { body: String(result), headers: { 'content-type': 'text/plain;CHARSET=utf-8' }};
-    }
-  }
+  /**
+   * The raw body of the request
+   */
+  rawBody: string,
 }
 
 
-export function createPipeline(module: any): Pipeline<any, any> {
-  // If a name is defined use the defined name otherwise use the filename
-  // this is set in the init function
-  const name = module.name;
+function createProxy<Req extends Request, Res>(endpoint: Endpoint<Req, Res>, { headers, ...props }: RunProps) {
+  return new Proxy({
+    headers,
+    body: undefined, 
+    query: undefined,
+    variables: undefined,
+    context: {},
+  }, { 
+    get: (obj, prop) => {
+      switch(prop) {
+        case 'body': {
+          if(!obj.body) {
+            if(!endpoint.bodyDecoder) {
+              throw 'No BodyDecoder, this can be infered by tipi-transform';
+            } else {
+              obj.body = endpoint.bodyDecoder(props.rawBody);
+            }
+          }
+          return obj.body;
+        }
 
-  return new Pipeline({
-    name,
-    requestBodyDecoder: module.decodeRequestBody,
-    urlParameterDecoder: module.decodeURLParameters,
-    queryParameterDecoder: module.decodeQueryParameters,
-    handleFunc: module.handle,
-    resBodyEncoder: module.encodeResponseBody, 
-    middleware: module.middleware,
-  });
+        case 'query': {
+          if(!obj.query) {
+            if(!endpoint.queryExtractor) {
+              throw 'No QueryExtractor, this can be infered by tipi-transform';
+            } else {
+              obj.query = endpoint.queryExtractor(props.uri);
+            }
+          }
+          return obj.query;
+        }
+
+        case 'variables': {
+          if(!obj.variables) {
+            if(!endpoint.variablesExtractor) {
+              throw 'No ParamsExtractor, this can be infered by tipi-transform';
+            } else {
+              obj.variables = endpoint.variablesExtractor(props.uri, props.matchedOn);
+            }
+          }
+          return obj.variables;
+        }
+
+        default: return obj[prop];
+      }
+    }
+  }
+)};
+
+// TODO: add a name to endpoints with a fallback constructed from the filename 
+export default class Pipeline<Req extends Request, Res> {
+  readonly endpoint: Endpoint<Req, Res>;
+
+  constructor(endpoint: Endpoint<Req, Res>) {
+    // NOTE: I'm not supper happy with this as this also includes the path 
+    // and method which are not used for handeling the request, and are duplicated
+    // in the router
+    this.endpoint = endpoint;   
+  }
+
+  async run(props: RunProps): Promise<string> {
+    // Create the request type
+    let req = createProxy(this.endpoint, props);
+
+    for(const middleware of this.endpoint.middleware ?? []) {
+      // TODO: add the raw req as an argument
+      req = await middleware(req);
+    }
+
+    console.log(req);
+
+    // @ts-ignore
+    let result = await this.endpoint(req);
+
+    if(typeof result === 'object') {
+      return JSON.stringify(result);
+    } else {
+      return String(result);
+    }
+  }
 }
