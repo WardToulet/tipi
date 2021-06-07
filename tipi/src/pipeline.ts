@@ -30,7 +30,6 @@ function createProxy<Req extends Request, Res>(endpoint: Endpoint<Req, Res>, { h
   return new Proxy({
     headers,
     body: undefined, 
-    query: undefined,
     context: {},
   }, { 
     get: (obj, prop) => {
@@ -47,13 +46,17 @@ function createProxy<Req extends Request, Res>(endpoint: Endpoint<Req, Res>, { h
         }
 
         case 'query': {
+          // @ts-ignore
           if(!obj.query) {
             if(!endpoint.queryExtractor) {
               throw 'No QueryExtractor, this can be infered by tipi-transform';
             } else {
+              // @ts-ignore
               obj.query = endpoint.queryExtractor(props.uri);
             }
           }
+
+          // @ts-ignore
           return obj.query;
         }
 
@@ -96,8 +99,6 @@ export default class Pipeline<Req extends Request, Res> {
       // TODO: add the raw req as an argument
       req = await middleware(req);
     }
-
-    console.log(req);
 
     // @ts-ignore
     let result = await this.endpoint(req);

@@ -61,14 +61,32 @@ export interface VariablesExtractor {
  * @param {string} path
  * @param {string} matchedOn
  */
-export const simpleVariablesExtractor: VariablesExtractor = (path: string, matchedOn: string) => {
-  const pathParts = path.split('/');
+export const variablesExtractor: VariablesExtractor = (path: string, matchedOn: string) => {
+  const pathParts = path.split('?')[0].split('/');
   return Object.fromEntries(
     Object.entries(matchedOn.split('/'))
       .filter(([ _, part ]) => part.startsWith('@'))
       .map(([ idx, part ]) => [ part.slice(1), pathParts[idx]] )
   );
 }
+
+export interface QueryExtractor {
+  (path: string): { [key: string]: number | string | undefined } 
+} 
+
+/**
+ * Extract the url encoded qeurys from the path 
+ *
+ * @param {string} path
+ */
+export const queryExtractor: QueryExtractor = (path: string) => {
+  const [ _, query ] = path.split('?');
+  return Object.fromEntries(
+    decodeURIComponent(query)
+      .split('&')
+      .map(entry => entry.split('='))
+  );
+};
 
 /**
  * A tipi endpoint 
@@ -116,7 +134,7 @@ export interface Endpoint<Req extends Request, Res> {
    * Function that thakes the query part of the uri and produces a req.query
    **/
   // FIXME: use proper type
-  queryExtractor?: Function,
+  queryExtractor?: QueryExtractor,
 
   /**
    * Body decoder, function that takes the raw body and produces a req.body
