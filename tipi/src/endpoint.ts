@@ -81,11 +81,13 @@ export interface QueryExtractor {
  */
 export const queryExtractor: QueryExtractor = (path: string) => {
   const [ _, query ] = path.split('?');
-  return Object.fromEntries(
-    decodeURIComponent(query)
-      .split('&')
-      .map(entry => entry.split('='))
-  );
+  return query 
+    ? Object.fromEntries(
+        decodeURIComponent(query)
+          .split('&')
+          .map(entry => entry.split('='))
+      )
+    : {};
 };
 
 /**
