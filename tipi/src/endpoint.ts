@@ -90,6 +90,16 @@ export const queryExtractor: QueryExtractor = (path: string) => {
     : {};
 };
 
+export interface BodyDecoder {
+  (rawBody: string): any;
+} 
+
+export const bodyDecoder = (rawBody: string) => {
+  return rawBody 
+    ? JSON.parse(rawBody)
+    : {};
+}
+
 /**
  * A tipi endpoint 
  */
@@ -142,5 +152,5 @@ export interface Endpoint<Req extends Request, Res> {
    * Body decoder, function that takes the raw body and produces a req.body
    */
   // FIXME: use proper type
-  bodyDecoder?: Function,
+  bodyDecoder?: BodyDecoder,
 }
