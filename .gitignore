@@ -4,9 +4,7 @@
 
 # I keep making files like : and :w in vim so I added them to the gitignore
 :*
-
-# The demo application I use to test out stuff and things should not be commited
-wetu-demo
+tipi-morph
 
 yarn.lock
 
