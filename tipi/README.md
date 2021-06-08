@@ -5,7 +5,7 @@ and generationg documentation.
 
 Tipi is based on [simple-endpoints](https://github.com/simonBackx/simple-endpoints)
 taking it's base idea of using es modules as endpoints and extending on it by
-exporting even more as to increase readablity and decrease code size.
+exporting even more to increase readablity and decrease code size.
 
 ## TODO
 
