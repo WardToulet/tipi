@@ -4,7 +4,7 @@
         "tipi",
         "tipi-demo",
         "tipi-simple-encoding",
-        "tipi-morph"
+        "tipi-transformer"
     ],
     "scripts": {}
 }

@@ -1,0 +1,30 @@
+{
+  "name": "tipi-demo",
+  "author": "Ward Toulet <ward@toulet.net>",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "ttsc",
+    "morph": "tsc && node ./dist/morph.js",
+    "start": "rm -rf ./build && ttsc && node dist/index.js",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "@types/node": "^14.14.25",
+    "jest": "^27.0.3",
+    "nodemon": "^2.0.7",
+    "ts-jest": "^27.0.2",
+    "ts-node": "^9.1.1",
+    "ts-transformer-testing-library": "^1.0.0-alpha.7",
+    "tslint": "^6.1.3",
+    "ttypescript": "^1.5.12",
+    "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "@simonbackx/simple-encoding": "^1.13.3",
+    "@simonbackx/simple-errors": "^1.2.0",
+    "ts-morph": "^11.0.0",
+    "uuid": "^8.3.2"
+  }
+}
